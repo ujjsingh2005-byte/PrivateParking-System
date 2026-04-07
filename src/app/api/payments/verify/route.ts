@@ -2,15 +2,14 @@ import { NextResponse } from 'next/server';
 import crypto from 'crypto';
 import { createClient } from '@supabase/supabase-js';
 
-// Setup Supabase with Service Role Key for backend updates
-// This key allows bypassing RLS so we can update the payment status
-const supabaseAdmin = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.SUPABASE_SERVICE_ROLE_KEY!
-);
-
 export async function POST(request: Request) {
   try {
+    // Initialize Supabase Admin inside handler to prevent build-time errors
+    const supabaseAdmin = createClient(
+      process.env.NEXT_PUBLIC_SUPABASE_URL || 'https://placeholder.supabase.co',
+      process.env.SUPABASE_SERVICE_ROLE_KEY || 'placeholder'
+    );
+
     const { razorpay_order_id, razorpay_payment_id, razorpay_signature, userId, bookingId } = await request.json();
 
     // 1. Signature verification

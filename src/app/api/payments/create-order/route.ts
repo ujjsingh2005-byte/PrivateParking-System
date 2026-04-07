@@ -1,14 +1,14 @@
 import { NextResponse } from 'next/server';
 import Razorpay from 'razorpay';
 
-// Initialize Razorpay with your key_id and key_secret from .env.local
-const razorpay = new Razorpay({
-  key_id: process.env.RAZORPAY_KEY_ID!,
-  key_secret: process.env.RAZORPAY_KEY_SECRET!,
-});
-
 export async function POST(request: Request) {
   try {
+    // Initialize Razorpay inside handler to prevent build-time errors
+    const razorpay = new Razorpay({
+      key_id: process.env.RAZORPAY_KEY_ID || 'placeholder',
+      key_secret: process.env.RAZORPAY_KEY_SECRET || 'placeholder',
+    });
+
     const { amount, userId, bookingId } = await request.json();
 
     // Basic validation
