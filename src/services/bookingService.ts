@@ -2,6 +2,7 @@ import { supabase } from '@/lib/supabase';
 import { sendNotification } from './notificationService';
 
 export interface BookingData {
+  id?: string;
   user_id: string;
   slot_id: string;
   start_time: Date;
@@ -38,15 +39,21 @@ export const createBooking = async (bookingData: BookingData) => {
     throw new Error('Slot is not available for the selected time');
   }
 
+  const insertData: any = {
+    user_id: bookingData.user_id,
+    slot_id: bookingData.slot_id,
+    start_time: bookingData.start_time.toISOString(),
+    end_time: bookingData.end_time.toISOString(),
+    status: 'confirmed',
+  };
+
+  if (bookingData.id) {
+    insertData.id = bookingData.id;
+  }
+
   const { data, error } = await supabase
     .from('bookings')
-    .insert({
-      user_id: bookingData.user_id,
-      slot_id: bookingData.slot_id,
-      start_time: bookingData.start_time.toISOString(),
-      end_time: bookingData.end_time.toISOString(),
-      status: 'confirmed',
-    })
+    .insert(insertData)
     .select()
     .single();
 
@@ -56,6 +63,39 @@ export const createBooking = async (bookingData: BookingData) => {
 
   // Trigger notification
   await sendNotification(bookingData.user_id, `Booking confirmed for Slot #${data.slot_id}!`);
+
+  return data;
+};
+
+export const cancelBooking = async (bookingId: string) => {
+  const { data, error } = await supabase
+    .from('bookings')
+    .update({ status: 'cancelled' })
+    .eq('id', bookingId)
+    .select()
+    .single();
+
+  if (error) {
+    throw error;
+  }
+
+  // Trigger notification for cancellation
+  await sendNotification(data.user_id, `Booking cancelled for Slot #${data.slot_id}!`);
+
+  return data;
+};
+
+export const deleteBooking = async (bookingId: string) => {
+  const { data, error } = await supabase
+    .from('bookings')
+    .delete()
+    .eq('id', bookingId)
+    .select()
+    .single();
+
+  if (error) {
+    throw error;
+  }
 
   return data;
 };

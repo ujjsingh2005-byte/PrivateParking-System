@@ -6,12 +6,18 @@ import { Settings, Shield, Bell, Moon, Globe, ChevronRight, LayoutGrid, Layers, 
 import Link from 'next/link';
 
 export default function SettingsPage() {
+  const languages = ['English (US)', 'Spanish', 'French', 'German', 'Hindi'];
+  const [langIndex, setLangIndex] = useState(0);
+
+  const handleLanguageChange = () => {
+    setLangIndex((prev) => (prev + 1) % languages.length);
+  };
+
   const [profile, setProfile] = useState<any>(null);
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    fetchProfile();
-  }, []);
+  const [pushNotifications, setPushNotifications] = useState(true);
+  const [darkMode, setDarkMode] = useState(true);
 
   const fetchProfile = async () => {
     const { data: { session } } = await supabase.auth.getSession();
@@ -25,6 +31,10 @@ export default function SettingsPage() {
     }
     setLoading(false);
   };
+
+  useEffect(() => {
+    fetchProfile();
+  }, []);
 
   if (loading) return <div className="p-12 text-center text-slate-400">Loading Settings...</div>;
 
@@ -88,8 +98,11 @@ export default function SettingsPage() {
                         <p className="text-xs text-slate-500">Get alerts for booking expiry.</p>
                      </div>
                   </div>
-                  <div className="w-12 h-6 bg-blue-600 rounded-full relative shadow-inner cursor-pointer">
-                     <div className="absolute right-1 top-1 w-4 h-4 bg-white rounded-full shadow-md" />
+                  <div 
+                     onClick={() => setPushNotifications(!pushNotifications)}
+                     className={`w-12 h-6 rounded-full relative shadow-inner cursor-pointer transition-colors duration-200 ${pushNotifications ? 'bg-blue-600' : 'bg-slate-700'}`}
+                  >
+                     <div className={`absolute top-1 w-4 h-4 bg-white rounded-full shadow-md transition-all duration-200 ${pushNotifications ? 'right-1' : 'left-1'}`} />
                   </div>
                </div>
 
@@ -101,21 +114,29 @@ export default function SettingsPage() {
                         <p className="text-xs text-slate-500">Adjust the visual appearance.</p>
                      </div>
                   </div>
-                  <div className="w-12 h-6 bg-blue-600 rounded-full relative shadow-inner cursor-pointer">
-                     <div className="absolute right-1 top-1 w-4 h-4 bg-white rounded-full shadow-md" />
+                  <div 
+                     onClick={() => setDarkMode(!darkMode)}
+                     className={`w-12 h-6 rounded-full relative shadow-inner cursor-pointer transition-colors duration-200 ${darkMode ? 'bg-blue-600' : 'bg-slate-700'}`}
+                  >
+                     <div className={`absolute top-1 w-4 h-4 bg-white rounded-full shadow-md transition-all duration-200 ${darkMode ? 'right-1' : 'left-1'}`} />
                   </div>
                </div>
 
-               <div className="p-6 flex items-center justify-between hover:bg-slate-800/30 transition-colors">
-                  <div className="flex items-center gap-4">
-                     <Globe className="w-5 h-5 text-slate-400" />
-                     <div>
-                        <h4 className="font-bold text-white">Language</h4>
-                        <p className="text-xs text-slate-500">Current: English (US)</p>
-                     </div>
-                  </div>
-                  <button className="text-xs font-bold text-blue-400 hover:text-white transition-colors">Change</button>
-               </div>
+                <div className="p-6 flex items-center justify-between hover:bg-slate-800/30 transition-colors">
+                   <div className="flex items-center gap-4">
+                      <Globe className="w-5 h-5 text-slate-400" />
+                      <div>
+                         <h4 className="font-bold text-white">Language</h4>
+                         <p className="text-xs text-slate-500">Current: {languages[langIndex]}</p>
+                      </div>
+                   </div>
+                   <button 
+                      onClick={handleLanguageChange}
+                      className="text-xs font-bold text-blue-400 hover:text-white transition-colors"
+                   >
+                      Change
+                   </button>
+                </div>
             </div>
           </div>
         </section>

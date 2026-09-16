@@ -4,7 +4,7 @@ import React, { useEffect, useState } from 'react';
 import { supabase } from '@/lib/supabase';
 import SlotGrid from '@/components/SlotGrid';
 import BookingModal from '@/components/BookingModal';
-import { createBooking } from '@/services/bookingService';
+import { createBooking, checkAvailability } from '@/services/bookingService';
 import { ArrowLeft } from 'lucide-react';
 import Link from 'next/link';
 
@@ -38,27 +38,158 @@ export default function ZonePage({ params }: { params: Promise<{ id: string }> }
   }, [id]);
 
   const handleBook = async (start: Date, end: Date) => {
-    // Attempting to book without strict auth logic here just to demonstrate MVP. 
-    // Usually we extract user.id from supabase.auth.getSession()
     const { data: session } = await supabase.auth.getSession();
     const userId = session?.session?.user?.id;
 
     if (!userId) {
-      alert("Please login first! (For demo, add a default user logic if needed)");
-      // For demo bypass we could insert without user if RLS allowed, but RLS strictly requires user.
-      // So you must login.
+      alert("Please login first!");
       return;
     }
 
     try {
-      await createBooking({
-        user_id: userId,
-        slot_id: selectedSlot.id,
-        start_time: start,
-        end_time: end
+      // 1. Check if the user has an active subscription
+      const { data: subscription } = await supabase
+        .from('subscriptions')
+        .select('*')
+        .eq('user_id', userId)
+        .eq('status', 'active')
+        .gt('end_date', new Date().toISOString())
+        .maybeSingle();
+
+      const hasActiveSub = !!subscription;
+
+      // 2. Evaluate booking rules
+      if (zone.zone_type === 'subscription' && !hasActiveSub) {
+        alert("This zone is for subscribers only. Please buy a subscription first.");
+        return;
+      }
+
+      // Hybrid zone is free if subscribed, subscription zone is free. Hourly is post-paid (billed on exit).
+      const isFreeBooking = 
+        zone.zone_type === 'subscription' || 
+        (zone.zone_type === 'hybrid' && hasActiveSub) ||
+        zone.zone_type === 'hourly';
+
+      if (isFreeBooking) {
+        // Create the booking directly
+        await createBooking({
+          user_id: userId,
+          slot_id: selectedSlot.id,
+          start_time: start,
+          end_time: end
+        });
+        alert('Booking created successfully!');
+        setSelectedSlot(null);
+        return;
+      }
+
+      // 3. Paid Booking (Upfront Payment via Razorpay)
+      const durationHours = Math.ceil((end.getTime() - start.getTime()) / (1000 * 60 * 60));
+      const pricePerHour = selectedSlot.price_per_hour_override || zone.price_per_hour;
+      const totalPrice = pricePerHour * durationHours;
+
+      if (totalPrice <= 0) {
+        await createBooking({
+          user_id: userId,
+          slot_id: selectedSlot.id,
+          start_time: start,
+          end_time: end
+        });
+        alert('Booking created successfully!');
+        setSelectedSlot(null);
+        return;
+      }
+
+      // Check availability first before charging
+      const isAvailable = await checkAvailability(selectedSlot.id, start, end);
+      if (!isAvailable) {
+        alert('Slot is not available for the selected time');
+        return;
+      }
+
+      // Generate client-side UUID for the booking
+      const bookingId = 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
+        const r = Math.random() * 16 | 0, v = c === 'x' ? r : (r & 0x3 | 0x8);
+        return v.toString(16);
       });
-      alert('Booking created successfully!');
-      setSelectedSlot(null);
+
+      // Create Razorpay order
+      const orderRes = await fetch('/api/payments/create-order', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          amount: totalPrice,
+          userId,
+          bookingId: bookingId
+        })
+      });
+
+      if (!orderRes.ok) {
+        const errData = await orderRes.json();
+        throw new Error(errData.error || 'Failed to create Razorpay order');
+      }
+
+      const orderData = await orderRes.json();
+
+      const razorpayOptions = {
+        key: process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID,
+        amount: orderData.amount,
+        currency: orderData.currency || 'INR',
+        name: 'Smart Parking System',
+        description: `Booking for Slot #${selectedSlot.slot_number}`,
+        order_id: orderData.id,
+        prefill: {
+          email: session?.session?.user?.email || '',
+        },
+        handler: async function (paymentResponse: any) {
+          try {
+            const verifyRes = await fetch('/api/payments/verify', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({
+                razorpay_order_id: paymentResponse.razorpay_order_id,
+                razorpay_payment_id: paymentResponse.razorpay_payment_id,
+                razorpay_signature: paymentResponse.razorpay_signature,
+                bookingId: bookingId,
+                userId,
+                amount: totalPrice
+              })
+            });
+
+            if (!verifyRes.ok) {
+              throw new Error('Payment verification failed');
+            }
+
+            // Create the booking in the database now that payment is confirmed
+            await createBooking({
+              id: bookingId,
+              user_id: userId,
+              slot_id: selectedSlot.id,
+              start_time: start,
+              end_time: end
+            });
+
+            alert('Payment successful! Your booking is confirmed.');
+            setSelectedSlot(null);
+          } catch (err: any) {
+            alert(err.message || 'Payment verification failed');
+          }
+        },
+        modal: {
+          ondismiss: function () {
+            alert('Payment cancelled. Booking was not created.');
+          }
+        }
+      };
+
+      const razorpay = new (window as any).Razorpay(razorpayOptions);
+      
+      razorpay.on('payment.failed', function (response: any) {
+        alert(response.error.description || 'Payment failed. Booking was not created.');
+      });
+
+      razorpay.open();
+
     } catch (err: any) {
       alert(err.message || 'Error occurred during booking');
     }

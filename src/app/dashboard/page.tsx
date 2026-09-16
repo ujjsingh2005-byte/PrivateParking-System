@@ -2,10 +2,10 @@
 
 import { useEffect, useState } from 'react';
 import { supabase } from '@/lib/supabase';
-import { getUserBookings } from '@/services/bookingService';
+import { getUserBookings, cancelBooking, deleteBooking } from '@/services/bookingService';
 import ExtensionModal from '@/components/ExtensionModal';
 import { format, differenceInMinutes } from 'date-fns';
-import { LogOut, MapPin, Clock, CalendarDays, User, Settings, ChevronRight } from 'lucide-react';
+import { LogOut, MapPin, Clock, CalendarDays, User, Settings, ChevronRight, Trash2 } from 'lucide-react';
 import Link from 'next/link';
 
 // Let's import the specific extension fetch from our extensionService.
@@ -16,6 +16,16 @@ export default function Dashboard() {
   const [bookings, setBookings] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedExtension, setSelectedExtension] = useState<any>(null);
+  const [hiddenIds, setHiddenIds] = useState<string[]>([]);
+
+  useEffect(() => {
+    const saved = localStorage.getItem('hidden_bookings');
+    if (saved) {
+      try {
+        setHiddenIds(JSON.parse(saved));
+      } catch (e) {}
+    }
+  }, []);
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data: { session } }) => {
@@ -84,6 +94,38 @@ export default function Dashboard() {
     }
   };
 
+  const handleCancel = async (bookingId: string) => {
+    if (!confirm('Are you sure you want to cancel this booking?')) {
+      return;
+    }
+    try {
+      await cancelBooking(bookingId);
+      alert('Booking cancelled successfully.');
+      if (session?.user) {
+        loadBookings(session.user.id);
+      }
+    } catch (err: any) {
+      alert(err.message || 'Failed to cancel booking');
+    }
+  };
+
+  const handleDelete = async (bookingId: string) => {
+    if (!confirm('Are you sure you want to remove this cancelled booking from your history?')) {
+      return;
+    }
+    // Update local state and localStorage instantly
+    const updated = [...hiddenIds, bookingId];
+    setHiddenIds(updated);
+    localStorage.setItem('hidden_bookings', JSON.stringify(updated));
+
+    // Try deleting from database as well, but ignore RLS errors since it is already hidden
+    try {
+      await deleteBooking(bookingId);
+    } catch (err) {
+      console.warn('Database delete skipped/failed (requires Supabase FOR DELETE policy):', err);
+    }
+  };
+
   if (loading) {
     return <div className="p-12 text-center text-slate-400">Loading Dashboard...</div>;
   }
@@ -110,8 +152,8 @@ export default function Dashboard() {
           <h1 className="text-2xl font-bold text-white">Your Dashboard</h1>
           <p className="text-slate-400 text-sm">Welcome back, {session.user.email}</p>
         </div>
-        <button 
-          onClick={() => supabase.auth.signOut()} 
+         <button 
+          onClick={() => supabase.auth.signOut().then(() => window.location.href = '/auth')} 
           className="flex items-center gap-2 px-4 py-2 bg-red-500/10 text-red-500 hover:bg-red-500/20 rounded-xl transition-colors font-medium text-sm"
         >
           <LogOut className="w-4 h-4" /> Sign Out
@@ -149,14 +191,19 @@ export default function Dashboard() {
         <h2 className="text-xl font-bold text-white flex items-center gap-2">
           <CalendarDays className="w-5 h-5 text-blue-500" /> My Bookings
         </h2>
-        {bookings.length === 0 ? (
-          <div className="text-slate-400 p-12 text-center border border-slate-800 border-dashed rounded-3xl">
-            No bookings found. Try booking a slot first!
-          </div>
-        ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {bookings.map(b => {
-              const endTime = new Date(b.end_time);
+        {(() => {
+          const visibleBookings = bookings.filter(b => !hiddenIds.includes(b.id));
+          if (visibleBookings.length === 0) {
+            return (
+              <div className="text-slate-400 p-12 text-center border border-slate-800 border-dashed rounded-3xl">
+                No bookings found. Try booking a slot first!
+              </div>
+            );
+          }
+          return (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {visibleBookings.map(b => {
+                const endTime = new Date(b.end_time);
               const now = new Date();
               const minsLeft = differenceInMinutes(endTime, now);
               
@@ -166,7 +213,10 @@ export default function Dashboard() {
               return (
                 <div key={b.id} className="bg-slate-900 border border-slate-800 p-6 rounded-3xl flex flex-col hover:border-slate-700 transition-colors">
                   <div className="flex justify-between items-start mb-4">
-                    <div className="flex items-center gap-2 text-emerald-400 font-bold bg-emerald-500/10 px-3 py-1 rounded-full text-xs">
+                    <div className={`flex items-center gap-2 font-bold px-3 py-1 rounded-full text-xs ${
+                      b.status === 'confirmed' ? 'text-emerald-400 bg-emerald-500/10' :
+                      b.status === 'cancelled' ? 'text-red-400 bg-red-500/10' : 'text-slate-400 bg-slate-500/10'
+                    }`}>
                       {b.status.toUpperCase()}
                     </div>
                     {b.extension_count > 0 && (
@@ -206,11 +256,28 @@ export default function Dashboard() {
                         Extension valid only in last 30 minutes.
                      </div>
                   )}
+                  {b.status === 'confirmed' && (
+                    <button 
+                      onClick={() => handleCancel(b.id)}
+                      className="mt-3 w-full bg-red-600/10 hover:bg-red-600/20 text-red-500 border border-red-500/20 font-bold py-3 rounded-xl transition-colors text-xs flex items-center justify-center gap-1.5"
+                    >
+                      Cancel Booking
+                    </button>
+                  )}
+                  {b.status === 'cancelled' && (
+                    <button 
+                      onClick={() => handleDelete(b.id)}
+                      className="mt-3 w-full bg-red-950/40 hover:bg-red-900/30 text-red-400 border border-red-500/20 font-bold py-3 rounded-xl transition-colors text-xs flex items-center justify-center gap-1.5"
+                    >
+                      <Trash2 className="w-4 h-4" /> Remove Card
+                    </button>
+                  )}
                 </div>
               );
             })}
-          </div>
-        )}
+            </div>
+          );
+        })()}
       </div>
 
       {selectedExtension && (

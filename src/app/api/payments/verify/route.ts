@@ -1,48 +1,163 @@
-import { NextResponse } from 'next/server';
-import crypto from 'crypto';
-import { createClient } from '@supabase/supabase-js';
+import { NextRequest, NextResponse } from "next/server";
+import crypto from "crypto";
+import { createServerClient } from "@supabase/ssr";
 
-export async function POST(request: Request) {
+export async function POST(request: NextRequest) {
   try {
-    // Initialize Supabase Admin inside handler to prevent build-time errors
-    const supabaseAdmin = createClient(
-      process.env.NEXT_PUBLIC_SUPABASE_URL || 'https://placeholder.supabase.co',
-      process.env.SUPABASE_SERVICE_ROLE_KEY || 'placeholder'
+    const body = await request.json();
+
+    const {
+      bookingId,
+      userId,
+      amount,
+      razorpay_order_id,
+      razorpay_payment_id,
+      razorpay_signature,
+      paymentType,
+      planName,
+    } = body;
+
+    const isSubscription = paymentType === "subscription";
+
+    if (
+      (!isSubscription && !bookingId) ||
+      !userId ||
+      !razorpay_order_id ||
+      !razorpay_payment_id ||
+      !razorpay_signature
+    ) {
+      return NextResponse.json(
+        {
+          success: false,
+          error: "Missing payment verification data.",
+        },
+        {
+          status: 400,
+        }
+      );
+    }
+
+    const secret = process.env.RAZORPAY_KEY_SECRET;
+
+    if (!secret) {
+      console.error("RAZORPAY_KEY_SECRET is missing.");
+
+      return NextResponse.json(
+        {
+          success: false,
+          error: "Payment configuration error.",
+        },
+        {
+          status: 500,
+        }
+      );
+    }
+
+    // Create the signature using Razorpay order ID + payment ID
+    const generatedSignature = crypto
+      .createHmac("sha256", secret)
+      .update(`${razorpay_order_id}|${razorpay_payment_id}`)
+      .digest("hex");
+
+    // Timing-safe comparison
+    const receivedBuffer = Buffer.from(razorpay_signature, "utf8");
+    const generatedBuffer = Buffer.from(generatedSignature, "utf8");
+
+    const isValid =
+      receivedBuffer.length === generatedBuffer.length &&
+      crypto.timingSafeEqual(receivedBuffer, generatedBuffer);
+
+    if (!isValid) {
+      return NextResponse.json(
+        {
+          success: false,
+          error: "Invalid payment signature.",
+        },
+        {
+          status: 400,
+        }
+      );
+    }
+
+    // Create server client
+    const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
+    const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
+    const supabase = createServerClient(supabaseUrl, supabaseAnonKey, {
+      cookies: {
+        get(name: string) {
+          return request.cookies.get(name)?.value;
+        },
+        set() {},
+        remove() {},
+      },
+    });
+
+    // Insert payment record in payments table
+    const { error: dbError } = await supabase.from("payments").insert({
+      user_id: userId,
+      booking_id: isSubscription ? null : bookingId,
+      amount: amount || 0,
+      status: "success",
+      payment_method: "razorpay",
+      razorpay_order_id,
+      razorpay_payment_id,
+    });
+
+    if (dbError) {
+      console.error("Database insert error:", dbError);
+    }
+
+    // If payment type is subscription, update user's active subscription
+    if (isSubscription && planName) {
+      // Deactivate existing active subscriptions for the user
+      await supabase
+        .from("subscriptions")
+        .update({ status: "cancelled" })
+        .eq("user_id", userId)
+        .eq("status", "active");
+
+      // Calculate start and end date (1 month)
+      const startDate = new Date();
+      const endDate = new Date();
+      endDate.setMonth(endDate.getMonth() + 1);
+
+      const { error: subError } = await supabase.from("subscriptions").insert({
+        user_id: userId,
+        plan: planName,
+        start_date: startDate.toISOString(),
+        end_date: endDate.toISOString(),
+        status: "active",
+      });
+
+      if (subError) {
+        console.error("Subscription insert error:", subError);
+        return NextResponse.json(
+          {
+            success: false,
+            error: "Payment verified, but failed to activate subscription.",
+          },
+          {
+            status: 500,
+          }
+        );
+      }
+    }
+
+    return NextResponse.json({
+      success: true,
+      message: "Payment verified successfully.",
+    });
+  } catch (error) {
+    console.error("Payment verification error:", error);
+
+    return NextResponse.json(
+      {
+        success: false,
+        error: "Payment verification failed.",
+      },
+      {
+        status: 500,
+      }
     );
-
-    const { razorpay_order_id, razorpay_payment_id, razorpay_signature, userId, bookingId } = await request.json();
-
-    // 1. Signature verification
-    const secret = process.env.RAZORPAY_KEY_SECRET!;
-    const body = `${razorpay_order_id}|${razorpay_payment_id}`;
-
-    const expectedSignature = crypto
-      .createHmac('sha256', secret)
-      .update(body.toString())
-      .digest('hex');
-
-    const isAuthentic = expectedSignature === razorpay_signature;
-
-    if (!isAuthentic) {
-      return NextResponse.json({ error: 'Signature mismatch' }, { status: 400 });
-    }
-
-    // 2. Perform DB update (Payment succeeded)
-    if (bookingId) {
-      const { error: paymentError } = await supabaseAdmin
-        .from('payments')
-        .update({ status: 'success', razorpay_payment_id })
-        .eq('razorpay_order_id', razorpay_order_id);
-
-      if (paymentError) throw paymentError;
-
-      // Update booking status if necessary
-      await supabaseAdmin.from('bookings').update({ status: 'confirmed' }).eq('id', bookingId);
-    }
-
-    return NextResponse.json({ success: true, payment_id: razorpay_payment_id });
-  } catch (error: any) {
-    console.error('Payment Verification Error:', error);
-    return NextResponse.json({ error: error.message || 'Payment verification failed' }, { status: 500 });
   }
 }
