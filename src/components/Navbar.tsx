@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
-import { CarFront, User, LayoutDashboard, Crown, Bell, Check, Settings, ShieldAlert, LogIn, ShieldCheck } from 'lucide-react';
+import { CarFront, LayoutDashboard, Crown, Bell, Check, Settings, LogOut, LogIn, ShieldCheck, User } from 'lucide-react';
 import { supabase } from '@/lib/supabase';
 import { getUnreadNotificationsCount, getRecentNotifications, markAsRead } from '@/services/notificationService';
 
@@ -12,6 +12,7 @@ export default function Navbar() {
   const [showPanel, setShowPanel] = useState(false);
   const [user, setUser] = useState<any>(null);
   const [isAdmin, setIsAdmin] = useState(false);
+  const [roleLoaded, setRoleLoaded] = useState(false);
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data: { session } }) => {
@@ -19,6 +20,8 @@ export default function Navbar() {
         setUser(session.user);
         checkRole(session.user.id);
         loadNotifications(session.user.id);
+      } else {
+        setRoleLoaded(true);
       }
     });
 
@@ -29,6 +32,7 @@ export default function Navbar() {
         loadNotifications(session.user.id);
       } else {
         setIsAdmin(false);
+        setRoleLoaded(true);
       }
     });
 
@@ -43,6 +47,7 @@ export default function Navbar() {
       .maybeSingle();
 
     setIsAdmin(profile?.role === 'admin');
+    setRoleLoaded(true);
   };
 
   const loadNotifications = async (userId: string) => {
@@ -76,6 +81,11 @@ export default function Navbar() {
     loadNotifications(user.id);
   };
 
+  const handleSignOut = async () => {
+    await supabase.auth.signOut();
+    window.location.href = '/';
+  };
+
   return (
     <nav className="border-b bg-black/50 backdrop-blur-md sticky top-0 z-50">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -96,8 +106,8 @@ export default function Navbar() {
               <span>Pro</span>
             </Link>
 
-            {/* Admin Only Private Links */}
-            {isAdmin && (
+            {/* Admin-Only Links (Exclusively rendered for role === 'admin') */}
+            {roleLoaded && isAdmin && (
               <>
                 <Link href="/admin" className="flex items-center gap-1.5 bg-blue-600/20 text-blue-400 hover:bg-blue-600/30 border border-blue-500/30 px-3 py-1.5 rounded-xl text-xs font-bold transition-all">
                   <ShieldCheck className="w-4 h-4" />
@@ -109,13 +119,17 @@ export default function Navbar() {
                   <span className="hidden sm:inline">Dashboard</span>
                 </Link>
 
-                <Link href="/settings" className="p-2 text-gray-400 hover:text-white rounded-full hover:bg-slate-800 transition-all">
+                <Link href="/settings" className="p-2 text-gray-400 hover:text-white rounded-full hover:bg-slate-800 transition-all" title="Settings">
                   <Settings className="w-5 h-5" />
+                </Link>
+
+                <Link href="/profile" className="h-9 w-9 rounded-full bg-slate-800 flex items-center justify-center border border-slate-700 cursor-pointer hover:border-slate-500 transition-all" title="Admin Profile">
+                  <User className="w-5 h-5 text-gray-400" />
                 </Link>
               </>
             )}
 
-            {/* Notifications (if signed in) */}
+            {/* Notifications panel */}
             {user && (
               <div className="relative">
                 <button 
@@ -167,10 +181,16 @@ export default function Navbar() {
               </div>
             )}
 
+            {/* Standard User Auth Actions */}
             {user ? (
-              <Link href={isAdmin ? "/profile" : "/"} className="h-9 w-9 rounded-full bg-slate-800 flex items-center justify-center border border-slate-700 cursor-pointer hover:border-slate-500 transition-all">
-                <User className="w-5 h-5 text-gray-400" />
-              </Link>
+              <button
+                onClick={handleSignOut}
+                className="flex items-center gap-1.5 px-3 py-1.5 bg-red-500/10 text-red-400 hover:bg-red-500/20 border border-red-500/20 rounded-xl text-xs font-bold transition-all"
+                title="Sign Out"
+              >
+                <LogOut className="w-4 h-4" />
+                <span className="hidden sm:inline">Sign Out</span>
+              </button>
             ) : (
               <Link href="/auth" className="flex items-center gap-1.5 bg-blue-600 hover:bg-blue-500 text-white text-xs font-bold px-4 py-2 rounded-xl transition-all shadow-md">
                 <LogIn className="w-4 h-4" />

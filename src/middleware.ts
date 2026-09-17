@@ -37,22 +37,24 @@ export async function middleware(request: NextRequest) {
 
   // Private / Admin-Only routes
   const privateRoutes = ['/admin', '/dashboard', '/settings', '/profile'];
-  const isPrivateRoute = privateRoutes.some((route) => pathname.startsWith(route));
+  const isPrivateRoute = privateRoutes.some(
+    (route) => pathname === route || pathname.startsWith(`${route}/`)
+  );
 
   if (isPrivateRoute) {
-    // 1. If unauthenticated, redirect to login page
+    // 1. If unauthenticated, redirect to auth page
     if (!user) {
       return NextResponse.redirect(new URL('/auth', request.url));
     }
 
-    // 2. If authenticated, check role in profiles table
+    // 2. Fetch role from profiles table
     const { data: profile } = await supabase
       .from('profiles')
       .select('role')
       .eq('id', user.id)
       .maybeSingle();
 
-    // 3. Non-admin users are strictly restricted from Private routes -> redirect to Public Zones page ( / )
+    // 3. Strict restriction: Non-admin users attempting to open any private route are immediately redirected to public zones page ( / )
     if (profile?.role !== 'admin') {
       return NextResponse.redirect(new URL('/', request.url));
     }
@@ -63,9 +65,13 @@ export async function middleware(request: NextRequest) {
 
 export const config = {
   matcher: [
+    '/admin',
     '/admin/:path*',
+    '/dashboard',
     '/dashboard/:path*',
+    '/settings',
     '/settings/:path*',
+    '/profile',
     '/profile/:path*',
   ],
 };

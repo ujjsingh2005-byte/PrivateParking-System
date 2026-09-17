@@ -53,12 +53,12 @@ export default function AdminDashboard() {
 
   if (loading) return <div className="p-12 text-center text-slate-400">Verifying Admin Access...</div>;
   
-  if (!isAdmin) return (
-    <div className="max-w-md mx-auto mt-24 bg-red-500/10 p-8 rounded-3xl border border-red-500/20 text-center">
-      <h2 className="text-xl font-bold text-red-500 mb-2">Access Denied</h2>
-      <p className="text-red-400/80 text-sm">You must be logged in as an administrator to view this page.</p>
-    </div>
-  );
+  if (!isAdmin) {
+    if (typeof window !== 'undefined') {
+      window.location.href = '/';
+    }
+    return <div className="p-12 text-center text-red-500 font-bold">Access Denied - Redirecting...</div>;
+  }
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">

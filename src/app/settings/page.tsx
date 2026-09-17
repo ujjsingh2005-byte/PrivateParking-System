@@ -39,6 +39,9 @@ export default function SettingsPage() {
   if (loading) return <div className="p-12 text-center text-slate-400">Loading Settings...</div>;
 
   if (profile?.role !== 'admin') {
+    if (typeof window !== 'undefined') {
+      window.location.href = '/';
+    }
     return (
       <div className="max-w-md mx-auto mt-24 bg-red-500/10 p-8 rounded-3xl border border-red-500/20 text-center space-y-4 shadow-2xl">
         <ShieldAlert className="w-12 h-12 text-red-500 mx-auto" />

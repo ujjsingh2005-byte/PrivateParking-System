@@ -55,7 +55,10 @@ export default function AdminBookingsPage() {
   );
 
   if (loading) return <div className="p-12 text-center text-slate-400">Loading Bookings...</div>;
-  if (!isAdmin) return <div className="p-12 text-center text-red-500 font-bold">Access Denied</div>;
+  if (!isAdmin) {
+    if (typeof window !== 'undefined') window.location.href = '/';
+    return <div className="p-12 text-center text-red-500 font-bold">Access Denied - Redirecting...</div>;
+  }
 
   return (
     <div className="max-w-7xl mx-auto px-4 py-12">
