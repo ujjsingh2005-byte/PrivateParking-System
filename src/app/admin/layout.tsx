@@ -1,8 +1,11 @@
 "use client";
 
+import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { ShieldCheck, Layers, Crown, Calendar, ArrowLeft, Home } from 'lucide-react';
+import { ShieldCheck, Layers, Crown, Calendar, Home, Lock, KeyRound, AlertCircle, Eye, EyeOff, ShieldAlert, CheckCircle2 } from 'lucide-react';
+
+const MASTER_PASSWORD = 'Ujjwal@123';
 
 export default function AdminLayout({
   children,
@@ -10,6 +13,43 @@ export default function AdminLayout({
   children: React.ReactNode;
 }) {
   const pathname = usePathname();
+  const [isUnlocked, setIsUnlocked] = useState(false);
+  const [checkingAuth, setCheckingAuth] = useState(true);
+  const [passwordInput, setPasswordInput] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [attempts, setAttempts] = useState(0);
+
+  useEffect(() => {
+    // Check session storage for existing unlocked state
+    const unlocked = sessionStorage.getItem('admin_vault_unlocked');
+    if (unlocked === 'true') {
+      setIsUnlocked(true);
+    }
+    setCheckingAuth(false);
+  }, []);
+
+  const handleUnlock = (e: React.FormEvent) => {
+    e.preventDefault();
+    setError(null);
+
+    if (passwordInput === MASTER_PASSWORD) {
+      sessionStorage.setItem('admin_vault_unlocked', 'true');
+      setIsUnlocked(true);
+      setPasswordInput('');
+      setAttempts(0);
+    } else {
+      const nextAttempts = attempts + 1;
+      setAttempts(nextAttempts);
+      setError(`Invalid Master Password. (Failed attempts: ${nextAttempts})`);
+    }
+  };
+
+  const handleLock = () => {
+    sessionStorage.removeItem('admin_vault_unlocked');
+    setIsUnlocked(false);
+    setPasswordInput('');
+  };
 
   const navItems = [
     { name: 'Overview', href: '/admin', icon: ShieldCheck },
@@ -18,6 +58,86 @@ export default function AdminLayout({
     { name: 'Bookings & Payments', href: '/admin/bookings', icon: Calendar },
   ];
 
+  if (checkingAuth) {
+    return (
+      <div className="min-h-screen bg-slate-950 flex items-center justify-center text-slate-400">
+        Verifying Security Credentials...
+      </div>
+    );
+  }
+
+  // -------------------------------------------------------------
+  // MASTER PASSWORD SECURITY CHALLENGE SCREEN
+  // -------------------------------------------------------------
+  if (!isUnlocked) {
+    return (
+      <div className="min-h-screen bg-slate-950 flex items-center justify-center p-4 relative overflow-hidden">
+        {/* Ambient Glows */}
+        <div className="absolute -top-40 -left-40 w-96 h-96 bg-blue-600/10 rounded-full blur-3xl pointer-events-none" />
+        <div className="absolute -bottom-40 -right-40 w-96 h-96 bg-indigo-600/10 rounded-full blur-3xl pointer-events-none" />
+
+        <div className="w-full max-w-md bg-slate-900 border border-slate-800 rounded-3xl p-8 shadow-2xl relative z-10 space-y-6">
+          <div className="text-center space-y-3">
+            <div className="h-16 w-16 bg-blue-600/10 border border-blue-500/30 rounded-2xl flex items-center justify-center mx-auto text-blue-400 shadow-xl shadow-blue-500/5">
+              <Lock className="w-8 h-8" />
+            </div>
+            <h1 className="text-2xl font-black text-white tracking-tight">Admin Vault Security</h1>
+            <p className="text-slate-400 text-xs leading-relaxed">
+              This area is protected by a secondary master access key. Enter your admin security password to unlock full system controls.
+            </p>
+          </div>
+
+          {error && (
+            <div className="p-4 bg-red-500/10 border border-red-500/20 text-red-400 rounded-2xl text-xs font-semibold flex items-center gap-2.5">
+              <ShieldAlert className="w-4 h-4 flex-shrink-0" />
+              <span>{error}</span>
+            </div>
+          )}
+
+          <form onSubmit={handleUnlock} className="space-y-4">
+            <div className="relative">
+              <KeyRound className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500" />
+              <input
+                type={showPassword ? 'text' : 'password'}
+                required
+                placeholder="Enter Master Password..."
+                value={passwordInput}
+                onChange={(e) => setPasswordInput(e.target.value)}
+                className="w-full bg-slate-950 border border-slate-800 rounded-2xl p-4 pl-11 pr-11 text-white placeholder-slate-600 focus:border-blue-500 outline-none text-sm font-mono tracking-wider transition-all"
+              />
+              <button
+                type="button"
+                onClick={() => setShowPassword(!showPassword)}
+                className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-500 hover:text-slate-300"
+              >
+                {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+              </button>
+            </div>
+
+            <button
+              type="submit"
+              className="w-full bg-blue-600 hover:bg-blue-500 text-white font-black py-4 rounded-2xl transition-all shadow-xl shadow-blue-600/20 active:scale-[0.98] text-sm flex items-center justify-center gap-2"
+            >
+              <ShieldCheck className="w-4 h-4" /> Unlock Admin Portal
+            </button>
+          </form>
+
+          <div className="pt-2 text-center">
+            <Link
+              href="/"
+              className="inline-flex items-center gap-1.5 text-xs font-bold text-slate-500 hover:text-slate-300 transition-colors"
+            >
+              <Home className="w-3.5 h-3.5" /> Return to Public Parking Site
+            </Link>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // -------------------------------------------------------------
+  // UNLOCKED ADMIN PORTAL WITH LOCK CONTROL
+  // -------------------------------------------------------------
   return (
     <div className="min-h-screen bg-slate-950 text-white flex flex-col">
       {/* Dedicated Admin Portal Header */}
@@ -25,12 +145,15 @@ export default function AdminLayout({
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-16">
             <div className="flex items-center gap-3">
-              <div className="h-9 w-9 bg-blue-600/20 border border-blue-500/30 rounded-xl flex items-center justify-center text-blue-400">
+              <div className="h-9 w-9 bg-emerald-600/20 border border-emerald-500/30 rounded-xl flex items-center justify-center text-emerald-400">
                 <ShieldCheck className="w-5 h-5" />
               </div>
               <div>
                 <span className="font-black text-lg tracking-tight text-white flex items-center gap-2">
                   Admin Control Portal
+                  <span className="px-2 py-0.5 rounded-full text-[9px] font-black uppercase bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
+                    Vault Unlocked
+                  </span>
                 </span>
               </div>
             </div>
@@ -57,14 +180,25 @@ export default function AdminLayout({
               })}
             </div>
 
-            {/* Link back to public site */}
-            <Link
-              href="/"
-              className="flex items-center gap-1.5 px-3.5 py-1.5 bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white rounded-xl text-xs font-bold transition-all border border-slate-700"
-            >
-              <Home className="w-3.5 h-3.5" />
-              <span>Public Site</span>
-            </Link>
+            {/* Actions: Lock Vault & Public Site Switch */}
+            <div className="flex items-center gap-3">
+              <button
+                onClick={handleLock}
+                className="flex items-center gap-1.5 px-3 py-1.5 bg-red-500/10 hover:bg-red-500/20 text-red-400 border border-red-500/20 rounded-xl text-xs font-bold transition-all"
+                title="Lock Admin Portal"
+              >
+                <Lock className="w-3.5 h-3.5" />
+                <span>Lock Vault</span>
+              </button>
+
+              <Link
+                href="/"
+                className="flex items-center gap-1.5 px-3.5 py-1.5 bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white rounded-xl text-xs font-bold transition-all border border-slate-700"
+              >
+                <Home className="w-3.5 h-3.5" />
+                <span>Public Site</span>
+              </Link>
+            </div>
           </div>
         </div>
       </header>
