@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
-import { CarFront, User, LayoutDashboard, Crown, Bell, Check, Settings } from 'lucide-react';
+import { CarFront, User, LayoutDashboard, Crown, Bell, Check, Settings, ShieldAlert, LogIn, ShieldCheck } from 'lucide-react';
 import { supabase } from '@/lib/supabase';
 import { getUnreadNotificationsCount, getRecentNotifications, markAsRead } from '@/services/notificationService';
 
@@ -11,11 +11,13 @@ export default function Navbar() {
   const [notifications, setNotifications] = useState<any[]>([]);
   const [showPanel, setShowPanel] = useState(false);
   const [user, setUser] = useState<any>(null);
+  const [isAdmin, setIsAdmin] = useState(false);
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data: { session } }) => {
       if (session?.user) {
         setUser(session.user);
+        checkRole(session.user.id);
         loadNotifications(session.user.id);
       }
     });
@@ -23,12 +25,25 @@ export default function Navbar() {
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
       setUser(session?.user || null);
       if (session?.user) {
+        checkRole(session.user.id);
         loadNotifications(session.user.id);
+      } else {
+        setIsAdmin(false);
       }
     });
 
     return () => subscription.unsubscribe();
   }, []);
+
+  const checkRole = async (userId: string) => {
+    const { data: profile } = await supabase
+      .from('profiles')
+      .select('role')
+      .eq('id', userId)
+      .maybeSingle();
+
+    setIsAdmin(profile?.role === 'admin');
+  };
 
   const loadNotifications = async (userId: string) => {
     const count = await getUnreadNotificationsCount(userId);
@@ -71,14 +86,36 @@ export default function Navbar() {
           </Link>
           
           <div className="flex items-center gap-6">
-            <Link href="/" className="hidden md:block text-gray-300 hover:text-white transition-colors text-sm font-medium">
+            {/* Public Links for all users */}
+            <Link href="/" className="text-gray-300 hover:text-white transition-colors text-sm font-medium">
               Zones
             </Link>
-            <Link href="/dashboard" className="flex items-center gap-2 text-gray-300 hover:text-white transition-colors text-sm font-medium">
-              <LayoutDashboard className="w-4 h-4" />
-              <span className="hidden sm:inline">Dashboard</span>
+
+            <Link href="/subscriptions" className="flex items-center gap-1.5 text-amber-400 hover:text-amber-300 transition-colors text-sm font-medium">
+              <Crown className="w-4 h-4" />
+              <span>Pro</span>
             </Link>
-            
+
+            {/* Admin Only Private Links */}
+            {isAdmin && (
+              <>
+                <Link href="/admin" className="flex items-center gap-1.5 bg-blue-600/20 text-blue-400 hover:bg-blue-600/30 border border-blue-500/30 px-3 py-1.5 rounded-xl text-xs font-bold transition-all">
+                  <ShieldCheck className="w-4 h-4" />
+                  <span>Admin Authority</span>
+                </Link>
+
+                <Link href="/dashboard" className="flex items-center gap-1.5 text-gray-300 hover:text-white transition-colors text-sm font-medium">
+                  <LayoutDashboard className="w-4 h-4" />
+                  <span className="hidden sm:inline">Dashboard</span>
+                </Link>
+
+                <Link href="/settings" className="p-2 text-gray-400 hover:text-white rounded-full hover:bg-slate-800 transition-all">
+                  <Settings className="w-5 h-5" />
+                </Link>
+              </>
+            )}
+
+            {/* Notifications (if signed in) */}
             {user && (
               <div className="relative">
                 <button 
@@ -95,7 +132,7 @@ export default function Navbar() {
 
                 {showPanel && (
                   <div className="absolute right-0 mt-3 w-80 bg-slate-900 border border-slate-800 rounded-2xl shadow-2xl overflow-hidden animate-in fade-in slide-in-from-top-2 duration-200">
-                    <div className="p-4 border-b border-slate-800 font-bold bg-slate-900">
+                    <div className="p-4 border-b border-slate-800 font-bold bg-slate-900 text-white text-sm">
                       Notifications
                     </div>
                     <div className="max-h-[400px] overflow-y-auto">
@@ -125,26 +162,21 @@ export default function Navbar() {
                         ))
                       )}
                     </div>
-                    <Link href="/dashboard" className="block text-center py-3 bg-slate-950 text-xs font-bold text-blue-400 hover:bg-slate-900 transition-colors">
-                      View All Activity
-                    </Link>
                   </div>
                 )}
               </div>
             )}
 
-            <Link href="/subscriptions" className="flex items-center gap-2 text-amber-400 hover:text-amber-300 transition-colors text-sm font-medium">
-              <Crown className="w-4 h-4" />
-              <span className="hidden sm:inline">Pro</span>
-            </Link>
-
-            <Link href="/settings" className="p-2 text-gray-400 hover:text-white rounded-full hover:bg-slate-800 transition-all">
-              <Settings className="w-5 h-5" />
-            </Link>
-
-            <Link href="/profile" className="h-9 w-9 rounded-full bg-slate-800 flex items-center justify-center border border-slate-700 cursor-pointer hover:border-slate-500 transition-all">
-              <User className="w-5 h-5 text-gray-400" />
-            </Link>
+            {user ? (
+              <Link href={isAdmin ? "/profile" : "/"} className="h-9 w-9 rounded-full bg-slate-800 flex items-center justify-center border border-slate-700 cursor-pointer hover:border-slate-500 transition-all">
+                <User className="w-5 h-5 text-gray-400" />
+              </Link>
+            ) : (
+              <Link href="/auth" className="flex items-center gap-1.5 bg-blue-600 hover:bg-blue-500 text-white text-xs font-bold px-4 py-2 rounded-xl transition-all shadow-md">
+                <LogIn className="w-4 h-4" />
+                <span>Sign In</span>
+              </Link>
+            )}
           </div>
         </div>
       </div>

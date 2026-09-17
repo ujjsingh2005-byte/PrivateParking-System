@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { supabase } from '@/lib/supabase';
-import { User, Mail, Shield, Calendar, Hash, LogOut, ChevronRight } from 'lucide-react';
+import { User, Mail, Shield, Calendar, Hash, LogOut, ChevronRight, ShieldAlert } from 'lucide-react';
 import Link from 'next/link';
 
 export default function ProfilePage() {
@@ -108,6 +108,21 @@ export default function ProfilePage() {
         <p className="text-slate-400 mb-6">Please log in to view your profile settings.</p>
         <Link href="/auth" className="inline-block bg-blue-600 hover:bg-blue-500 text-white px-8 py-3 rounded-xl font-bold transition-colors">
           Go to Login
+        </Link>
+      </div>
+    );
+  }
+
+  if (profile?.role !== 'admin') {
+    return (
+      <div className="max-w-md mx-auto mt-24 bg-red-500/10 p-8 rounded-3xl border border-red-500/20 text-center space-y-4 shadow-2xl">
+        <ShieldAlert className="w-12 h-12 text-red-500 mx-auto" />
+        <h2 className="text-2xl font-bold text-red-500">Access Restricted</h2>
+        <p className="text-red-300 text-sm leading-relaxed">
+          Profile management requires Administrator Authority. Standard users can browse parking zones, select slots, and execute payments on the Public Zones page.
+        </p>
+        <Link href="/" className="inline-block bg-blue-600 hover:bg-blue-500 text-white font-bold px-6 py-3.5 rounded-2xl transition-all shadow-lg shadow-blue-600/20">
+          Go to Parking Zones
         </Link>
       </div>
     );
