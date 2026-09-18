@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { supabase } from '@/lib/supabase';
-import { Layers, Calendar, Crown, ArrowRight, ShieldCheck } from 'lucide-react';
+import { Layers, Calendar, Crown, ArrowRight, ShieldCheck, Activity, Users, Zap, CheckCircle2 } from 'lucide-react';
 
 export default function AdminDashboard() {
   const [isAdmin, setIsAdmin] = useState(false);
@@ -51,72 +51,121 @@ export default function AdminDashboard() {
     setLoading(false);
   };
 
-  if (loading) return <div className="p-12 text-center text-slate-400">Verifying Admin Access...</div>;
+  if (loading) {
+    return (
+      <div className="max-w-7xl mx-auto px-4 py-20 text-center">
+        <div className="h-10 w-10 border-4 border-cyan-500 border-t-transparent rounded-full animate-spin mx-auto mb-4" />
+        <p className="text-slate-400 text-xs font-mono">Verifying Master Administrator Privileges...</p>
+      </div>
+    );
+  }
   
   if (!isAdmin) {
     if (typeof window !== 'undefined') {
       window.location.href = '/';
     }
-    return <div className="p-12 text-center text-red-500 font-bold">Access Denied - Redirecting...</div>;
+    return <div className="p-12 text-center text-red-500 font-bold text-xs">Access Denied - Redirecting to public site...</div>;
   }
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-      <div className="mb-8">
-        <h1 className="text-4xl font-black text-white mb-2">Admin Dashboard</h1>
-        <p className="text-slate-400">System overview and administrative controls.</p>
-      </div>
-
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-12">
-        <div className="bg-slate-900 border border-slate-800 p-6 rounded-3xl">
-          <h3 className="text-slate-400 text-sm font-semibold mb-2">Total Zones</h3>
-          <span className="text-4xl font-black text-white">{stats.totalZones}</span>
-        </div>
-        <div className="bg-slate-900 border border-slate-800 p-6 rounded-3xl">
-          <h3 className="text-slate-400 text-sm font-semibold mb-2">Total Slots</h3>
-          <span className="text-4xl font-black text-white">{stats.totalSlots}</span>
-        </div>
-        <div className="bg-slate-900 border border-slate-800 p-6 rounded-3xl">
-          <h3 className="text-slate-400 text-sm font-semibold mb-2">Total Bookings</h3>
-          <span className="text-4xl font-black text-white">{stats.totalBookings}</span>
-        </div>
-        <div className="bg-slate-900 border border-slate-800 p-6 rounded-3xl">
-          <h3 className="text-slate-400 text-sm font-semibold mb-2">Active Subscriptions</h3>
-          <span className="text-4xl font-black text-amber-400">{stats.totalActiveSubs}</span>
-        </div>
-      </div>
-
-      <h2 className="text-2xl font-bold text-white mb-6">Management Modules</h2>
+    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
       
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <Link href="/admin/manage" className="bg-slate-900 hover:bg-slate-800/80 border border-slate-800 p-8 rounded-3xl transition-all group">
-           <Layers className="w-10 h-10 text-blue-500 mb-4 group-hover:scale-110 transition-transform" />
-           <h3 className="text-xl font-bold text-white mb-2">Zone & Slot Management</h3>
-           <p className="text-slate-400 text-sm mb-6">Create or delete zones, configure pricing, and manage individual parking slots.</p>
-           <span className="text-blue-400 font-bold text-sm flex items-center gap-1 group-hover:translate-x-1 transition-transform">
-             Open Console <ArrowRight className="w-4 h-4" />
-           </span>
-        </Link>
+      {/* Top Header */}
+      <div className="mb-10 space-y-1">
+        <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-cyan-500/10 border border-cyan-500/30 text-cyan-400 text-[11px] font-semibold uppercase tracking-wider mb-2">
+          <Activity className="w-3 h-3 text-cyan-400" />
+          Master Command Center
+        </div>
+        <h1 className="text-3xl sm:text-4xl font-black text-white tracking-tight">System Telemetry & Controls</h1>
+        <p className="text-slate-400 text-xs sm:text-sm">Manage multi-zone capacities, configure subscription tiers, and audit all reservations.</p>
+      </div>
 
-        <Link href="/admin/subscriptions" className="bg-slate-900 hover:bg-slate-800/80 border border-slate-800 p-8 rounded-3xl transition-all group">
-           <Crown className="w-10 h-10 text-amber-500 mb-4 group-hover:scale-110 transition-transform" />
-           <h3 className="text-xl font-bold text-white mb-2">Subscription Authority</h3>
-           <p className="text-slate-400 text-sm mb-6">Activate or deactivate subscription plans, and toggle active user subscriptions.</p>
-           <span className="text-amber-400 font-bold text-sm flex items-center gap-1 group-hover:translate-x-1 transition-transform">
-             Manage Subscriptions <ArrowRight className="w-4 h-4" />
-           </span>
-        </Link>
+      {/* Metrics Row */}
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 mb-12">
+        <div className="bg-[#0f172a]/70 border border-white/[0.08] p-6 rounded-2xl flex flex-col justify-between">
+          <span className="text-[11px] font-semibold text-slate-400 uppercase tracking-wider mb-2">Total Zones</span>
+          <span className="text-3xl sm:text-4xl font-black text-white font-mono">{stats.totalZones}</span>
+          <span className="text-[10px] text-slate-500 mt-2">Active Parking Hubs</span>
+        </div>
 
-        <Link href="/admin/bookings" className="bg-slate-900 hover:bg-slate-800/80 border border-slate-800 p-8 rounded-3xl transition-all group">
-           <Calendar className="w-10 h-10 text-emerald-500 mb-4 group-hover:scale-110 transition-transform" />
-           <h3 className="text-xl font-bold text-white mb-2">Global Bookings</h3>
-           <p className="text-slate-400 text-sm mb-6">Monitor all bookings across all users, inspect timelines, and resolve conflicts.</p>
-           <span className="text-emerald-400 font-bold text-sm flex items-center gap-1 group-hover:translate-x-1 transition-transform">
-             View Bookings <ArrowRight className="w-4 h-4" />
-           </span>
-        </Link>
+        <div className="bg-[#0f172a]/70 border border-white/[0.08] p-6 rounded-2xl flex flex-col justify-between">
+          <span className="text-[11px] font-semibold text-cyan-400 uppercase tracking-wider mb-2">Configured Bays</span>
+          <span className="text-3xl sm:text-4xl font-black text-cyan-300 font-mono">{stats.totalSlots}</span>
+          <span className="text-[10px] text-slate-500 mt-2">Total Parking Slots</span>
+        </div>
+
+        <div className="bg-[#0f172a]/70 border border-white/[0.08] p-6 rounded-2xl flex flex-col justify-between">
+          <span className="text-[11px] font-semibold text-emerald-400 uppercase tracking-wider mb-2">Total Bookings</span>
+          <span className="text-3xl sm:text-4xl font-black text-emerald-400 font-mono">{stats.totalBookings}</span>
+          <span className="text-[10px] text-slate-500 mt-2">Confirmed Reservations</span>
+        </div>
+
+        <div className="bg-[#0f172a]/70 border border-white/[0.08] p-6 rounded-2xl flex flex-col justify-between">
+          <span className="text-[11px] font-semibold text-amber-400 uppercase tracking-wider mb-2">Pro Memberships</span>
+          <span className="text-3xl sm:text-4xl font-black text-amber-400 font-mono">{stats.totalActiveSubs}</span>
+          <span className="text-[10px] text-slate-500 mt-2">Active Subscribers</span>
+        </div>
+      </div>
+
+      {/* Management Console Modules */}
+      <div className="space-y-4">
+        <h2 className="text-lg font-bold text-white tracking-tight">Administrative Modules</h2>
+        
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <Link href="/admin/manage" className="bg-[#0f172a]/70 hover:bg-[#0f172a] border border-white/[0.08] hover:border-cyan-500/40 p-8 rounded-3xl transition-all duration-300 group flex flex-col justify-between">
+            <div>
+              <div className="h-12 w-12 rounded-2xl bg-cyan-500/10 border border-cyan-500/30 flex items-center justify-center text-cyan-400 mb-5 group-hover:scale-105 transition-transform">
+                <Layers className="w-6 h-6" />
+              </div>
+              <h3 className="text-lg font-bold text-white mb-2 group-hover:text-cyan-300 transition-colors">
+                Zone & Slot Management
+              </h3>
+              <p className="text-slate-400 text-xs mb-6 leading-relaxed">
+                Create or delete parking zones, adjust hourly or sub pricing rates, and configure individual bay slots.
+              </p>
+            </div>
+            <span className="text-cyan-400 font-bold text-xs flex items-center gap-1 group-hover:translate-x-1 transition-transform">
+              Open Module <ArrowRight className="w-3.5 h-3.5" />
+            </span>
+          </Link>
+
+          <Link href="/admin/subscriptions" className="bg-[#0f172a]/70 hover:bg-[#0f172a] border border-white/[0.08] hover:border-amber-500/40 p-8 rounded-3xl transition-all duration-300 group flex flex-col justify-between">
+            <div>
+              <div className="h-12 w-12 rounded-2xl bg-amber-500/10 border border-amber-500/30 flex items-center justify-center text-amber-400 mb-5 group-hover:scale-105 transition-transform">
+                <Crown className="w-6 h-6" />
+              </div>
+              <h3 className="text-lg font-bold text-white mb-2 group-hover:text-amber-300 transition-colors">
+                Subscription Authority
+              </h3>
+              <p className="text-slate-400 text-xs mb-6 leading-relaxed">
+                Activate or deactivate public subscription plans, and toggle active user subscription authorizations.
+              </p>
+            </div>
+            <span className="text-amber-400 font-bold text-xs flex items-center gap-1 group-hover:translate-x-1 transition-transform">
+              Manage Authority <ArrowRight className="w-3.5 h-3.5" />
+            </span>
+          </Link>
+
+          <Link href="/admin/bookings" className="bg-[#0f172a]/70 hover:bg-[#0f172a] border border-white/[0.08] hover:border-emerald-500/40 p-8 rounded-3xl transition-all duration-300 group flex flex-col justify-between">
+            <div>
+              <div className="h-12 w-12 rounded-2xl bg-emerald-500/10 border border-emerald-500/30 flex items-center justify-center text-emerald-400 mb-5 group-hover:scale-105 transition-transform">
+                <Calendar className="w-6 h-6" />
+              </div>
+              <h3 className="text-lg font-bold text-white mb-2 group-hover:text-emerald-300 transition-colors">
+                Global Bookings Ledger
+              </h3>
+              <p className="text-slate-400 text-xs mb-6 leading-relaxed">
+                Monitor all user bookings in real-time, inspect entry/exit timestamps, and resolve conflicts.
+              </p>
+            </div>
+            <span className="text-emerald-400 font-bold text-xs flex items-center gap-1 group-hover:translate-x-1 transition-transform">
+              View Ledger <ArrowRight className="w-3.5 h-3.5" />
+            </span>
+          </Link>
+        </div>
       </div>
 
     </div>
   );
 }
+

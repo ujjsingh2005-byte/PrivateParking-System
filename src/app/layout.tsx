@@ -17,11 +17,11 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className="dark">
-      <body className={`${inter.className} bg-slate-950 text-slate-50 min-h-screen flex flex-col`}>
+    <html lang="en" className="dark scroll-smooth">
+      <body className={`${inter.className} bg-[#0b1220] text-slate-100 min-h-screen flex flex-col antialiased selection:bg-cyan-500 selection:text-black`}>
         <Script src="https://checkout.razorpay.com/v1/checkout.js" strategy="beforeInteractive" />
         <Navbar />
-        <main className="flex-1 bg-gradient-to-br from-slate-950 via-slate-900 to-black">
+        <main className="flex-1">
           {children}
         </main>
       </body>

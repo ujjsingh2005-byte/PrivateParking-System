@@ -2,7 +2,8 @@
 
 import { useState } from 'react';
 import { supabase } from '@/lib/supabase';
-import { Mail, Lock, User, Globe, Code, KeyRound, Sparkles, CheckCircle2, AlertCircle } from 'lucide-react';
+import { Mail, Lock, User, Compass, Sparkles, CheckCircle2, AlertCircle, ArrowRight, KeyRound } from 'lucide-react';
+import Link from 'next/link';
 
 export default function AuthPage() {
   const [view, setView] = useState<'login' | 'signup'>('login');
@@ -37,7 +38,7 @@ export default function AuthPage() {
         if (signUpErr) throw signUpErr;
 
         if (data?.session) {
-          window.location.href = '/dashboard';
+          window.location.href = '/';
         } else {
           setInfoMessage('Account created! Please check your email inbox to confirm your registration.');
         }
@@ -59,7 +60,7 @@ export default function AuthPage() {
             });
 
             if (!autoSignUpErr && signUpData?.session) {
-              window.location.href = '/dashboard';
+              window.location.href = '/';
               return;
             }
           }
@@ -67,12 +68,12 @@ export default function AuthPage() {
         }
 
         if (data?.session) {
-          window.location.href = '/dashboard';
+          window.location.href = '/';
         }
       }
     } catch (err: any) {
       console.error('Error during auth:', err);
-      setError(err.message || 'Authentication failed. Please check your details.');
+      setError(err.message || 'Authentication failed. Please check your credentials.');
     } finally {
       setLoading(false);
     }
@@ -88,10 +89,10 @@ export default function AuthPage() {
 
     try {
       const { error } = await supabase.auth.resetPasswordForEmail(email, {
-        redirectTo: `${window.location.origin}/settings`,
+        redirectTo: `${window.location.origin}/`,
       });
       if (error) throw error;
-      setInfoMessage(`Password reset link sent to ${email}! Check your inbox.`);
+      setInfoMessage(`Password reset email sent to ${email}! Please check your inbox.`);
     } catch (err: any) {
       setError(err.message || 'Failed to send password reset email.');
     } finally {
@@ -113,7 +114,7 @@ export default function AuthPage() {
       });
 
       if (!error && data?.session) {
-        window.location.href = '/dashboard';
+        window.location.href = '/';
         return;
       }
 
@@ -129,9 +130,9 @@ export default function AuthPage() {
       if (signUpErr) throw signUpErr;
 
       if (signUpData?.session) {
-        window.location.href = '/dashboard';
+        window.location.href = '/';
       } else {
-        setInfoMessage('Demo account created! Please sign in or check your email.');
+        setInfoMessage('Demo account activated! You may now sign in.');
       }
     } catch (err: any) {
       setError(err.message || 'Demo login failed');
@@ -140,109 +141,95 @@ export default function AuthPage() {
     }
   };
 
-  const handleGoogleLogin = async () => {
-    const { error } = await supabase.auth.signInWithOAuth({
-      provider: 'google',
-      options: {
-        redirectTo: `${window.location.origin}/dashboard`,
-      },
-    });
-    if (error) setError(error.message);
-  };
-
   return (
-    <div className="flex min-h-screen items-center justify-center p-4">
-      <div className="w-full max-w-md bg-slate-900 border border-slate-800 rounded-3xl p-8 shadow-2xl space-y-6">
-        <div className="text-center">
-          <h1 className="text-3xl font-bold text-white mb-2">
-            {view === 'login' ? 'Welcome Back' : 'Create Account'}
+    <div className="min-h-[calc(100vh-4rem)] flex items-center justify-center p-4 relative overflow-hidden">
+      
+      {/* Background glow */}
+      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-cyan-500/10 rounded-full blur-3xl pointer-events-none" />
+
+      <div className="w-full max-w-md bg-[#0f172a] border border-white/[0.08] rounded-3xl p-8 shadow-2xl space-y-6 relative z-10">
+        
+        {/* Brand Icon & Heading */}
+        <div className="text-center space-y-2">
+          <div className="h-12 w-12 rounded-2xl bg-gradient-to-br from-cyan-500 to-indigo-600 flex items-center justify-center text-white shadow-lg shadow-cyan-500/20 mx-auto mb-3">
+            <Compass className="w-6 h-6 animate-pulse" />
+          </div>
+          <h1 className="text-2xl font-black text-white tracking-tight">
+            {view === 'login' ? 'SmartPark Access' : 'Create Mobility ID'}
           </h1>
-          <p className="text-slate-400 text-sm">
-            {view === 'login' ? 'Sign in to access your parking dashboard' : 'Join our smart parking community today'}
+          <p className="text-slate-400 text-xs">
+            {view === 'login' ? 'Enter your credentials to manage parking reservations' : 'Get instant access to real-time smart parking bays'}
           </p>
+        </div>
+
+        {/* Tab Switcher */}
+        <div className="grid grid-cols-2 p-1 bg-[#0b1220] rounded-xl border border-white/[0.06] text-xs font-bold">
+          <button
+            type="button"
+            onClick={() => { setError(null); setInfoMessage(null); setView('login'); }}
+            className={`py-2 rounded-lg transition-all ${
+              view === 'login' ? 'bg-cyan-500 text-black shadow-md' : 'text-slate-400 hover:text-white'
+            }`}
+          >
+            Sign In
+          </button>
+          <button
+            type="button"
+            onClick={() => { setError(null); setInfoMessage(null); setView('signup'); }}
+            className={`py-2 rounded-lg transition-all ${
+              view === 'signup' ? 'bg-cyan-500 text-black shadow-md' : 'text-slate-400 hover:text-white'
+            }`}
+          >
+            Create Account
+          </button>
         </div>
 
         {/* Info Message */}
         {infoMessage && (
-          <div className="p-4 bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 rounded-2xl text-sm font-medium flex items-start gap-3">
-            <CheckCircle2 className="w-5 h-5 flex-shrink-0 mt-0.5" />
+          <div className="p-3.5 bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 rounded-2xl text-xs font-medium flex items-start gap-2.5">
+            <CheckCircle2 className="w-4 h-4 flex-shrink-0 mt-0.5" />
             <div>{infoMessage}</div>
           </div>
         )}
 
         {/* Error Alert */}
         {error && (
-          <div className="p-4 bg-red-500/10 border border-red-500/20 text-red-400 rounded-2xl text-sm font-medium space-y-3">
+          <div className="p-3.5 bg-red-500/10 border border-red-500/20 text-red-400 rounded-2xl text-xs font-medium space-y-2">
             <div className="flex items-start gap-2">
-              <AlertCircle className="w-5 h-5 flex-shrink-0 mt-0.5" />
+              <AlertCircle className="w-4 h-4 flex-shrink-0 mt-0.5" />
               <span>{error}</span>
             </div>
-            <div className="flex flex-wrap gap-2 pt-1 border-t border-red-500/20 text-xs">
+            <div className="flex items-center gap-2 pt-1 border-t border-red-500/20 text-[11px]">
               <button
                 type="button"
                 onClick={handleResetPassword}
                 className="underline text-red-300 hover:text-white font-bold"
               >
-                Send Password Reset Email
-              </button>
-              <span>•</span>
-              <button
-                type="button"
-                onClick={() => { setError(null); setView('signup'); }}
-                className="underline text-red-300 hover:text-white font-bold"
-              >
-                Switch to Sign Up
+                Send Reset Password Link
               </button>
             </div>
           </div>
         )}
 
-        {/* Social Logins */}
-        <div className="grid grid-cols-2 gap-4">
-          <button
-            type="button"
-            onClick={handleGoogleLogin}
-            className="flex items-center justify-center gap-2 py-3 px-4 bg-slate-800 hover:bg-slate-700 border border-slate-700 rounded-2xl transition-all font-medium text-slate-300 text-sm"
-          >
-            <Globe className="w-4 h-4 text-blue-500" />
-            Google
-          </button>
-          <button
-            type="button"
-            className="flex items-center justify-center gap-2 py-3 px-4 bg-slate-800 border border-slate-700 rounded-2xl font-medium text-slate-500 opacity-50 cursor-not-allowed text-sm"
-          >
-            <Code className="w-4 h-4" />
-            GitHub
-          </button>
-        </div>
-
-        <div className="relative">
-          <div className="absolute inset-0 flex items-center">
-            <div className="w-full border-t border-slate-800"></div>
-          </div>
-          <div className="relative flex justify-center text-xs uppercase">
-            <span className="bg-slate-900 px-4 text-slate-500 font-bold tracking-tight">Or continue with</span>
-          </div>
-        </div>
-
         {/* Credentials Form */}
         <form onSubmit={handleAuth} className="space-y-4">
           {view === 'signup' && (
             <div className="relative">
-              <User className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-500" />
+              <User className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500" />
               <input
                 type="text"
                 name="username"
-                placeholder="Username"
+                placeholder="Driver Name"
                 value={username}
                 onChange={(e) => setUsername(e.target.value)}
                 required
-                className="w-full bg-slate-950 border border-slate-800 rounded-2xl p-4 pl-12 text-white placeholder-slate-600 focus:border-blue-500 outline-none transition-all"
+                className="w-full bg-[#0b1220] border border-white/[0.08] rounded-2xl p-3.5 pl-11 text-white text-xs placeholder-slate-500 focus:border-cyan-500 outline-none transition-all"
               />
             </div>
           )}
+
           <div className="relative">
-            <Mail className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-500" />
+            <Mail className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500" />
             <input
               type="email"
               name="email"
@@ -250,11 +237,12 @@ export default function AuthPage() {
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               required
-              className="w-full bg-slate-950 border border-slate-800 rounded-2xl p-4 pl-12 text-white placeholder-slate-600 focus:border-blue-500 outline-none transition-all"
+              className="w-full bg-[#0b1220] border border-white/[0.08] rounded-2xl p-3.5 pl-11 text-white text-xs placeholder-slate-500 focus:border-cyan-500 outline-none transition-all"
             />
           </div>
+
           <div className="relative">
-            <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-500" />
+            <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500" />
             <input
               type="password"
               name="password"
@@ -262,75 +250,56 @@ export default function AuthPage() {
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               required
-              className="w-full bg-slate-950 border border-slate-800 rounded-2xl p-4 pl-12 text-white placeholder-slate-600 focus:border-blue-500 outline-none transition-all"
+              className="w-full bg-[#0b1220] border border-white/[0.08] rounded-2xl p-3.5 pl-11 text-white text-xs placeholder-slate-500 focus:border-cyan-500 outline-none transition-all"
             />
           </div>
 
           <button
             type="submit"
             disabled={loading}
-            className="w-full bg-blue-600 hover:bg-blue-500 text-white font-bold py-4 rounded-2xl transition-all shadow-lg shadow-blue-600/20 active:scale-[0.98] flex items-center justify-center gap-2"
+            className="w-full bg-gradient-to-r from-cyan-500 to-indigo-600 hover:from-cyan-400 hover:to-indigo-500 text-white font-black py-3.5 rounded-2xl transition-all shadow-xl shadow-cyan-500/20 active:scale-[0.98] flex items-center justify-center gap-2 text-xs"
           >
             {loading ? (
-              'Processing...'
+              'Authenticating...'
             ) : view === 'login' ? (
-              'Sign In'
+              <>
+                <span>Sign In to SmartPark</span>
+                <ArrowRight className="w-4 h-4" />
+              </>
             ) : (
-              'Create Account'
+              <>
+                <span>Create Driver Account</span>
+                <ArrowRight className="w-4 h-4" />
+              </>
             )}
           </button>
         </form>
 
-        {/* Demo Fast Access Buttons */}
-        <div className="p-4 bg-slate-950/60 border border-slate-800 rounded-2xl space-y-2">
-          <div className="flex items-center gap-1.5 text-xs font-bold text-slate-400 uppercase tracking-wider">
-            <Sparkles className="w-3.5 h-3.5 text-amber-400" /> Quick Demo Access
+        {/* Quick Demo Access Bar */}
+        <div className="p-4 bg-[#0b1220] border border-white/[0.06] rounded-2xl space-y-2">
+          <div className="flex items-center gap-1.5 text-[10px] font-bold text-slate-400 uppercase tracking-wider">
+            <Sparkles className="w-3 h-3 text-cyan-400" /> Fast Demo Logins
           </div>
           <div className="grid grid-cols-2 gap-2 text-xs">
             <button
               type="button"
               onClick={() => handleDemoLogin('user@example.com', 'user123')}
-              className="py-2.5 px-3 bg-slate-800 hover:bg-slate-700 text-slate-300 font-bold rounded-xl transition-all border border-slate-700"
+              className="py-2 px-3 bg-slate-800 hover:bg-slate-700 text-slate-300 font-bold rounded-xl transition-all border border-white/[0.06] text-[11px]"
             >
-              Demo User
+              Driver User
             </button>
             <button
               type="button"
               onClick={() => handleDemoLogin('ujjsingh2005@gmail.com', 'Ujjwal@123')}
-              className="py-2.5 px-3 bg-blue-950/50 hover:bg-blue-900/50 text-blue-400 font-bold rounded-xl transition-all border border-blue-800/40"
+              className="py-2 px-3 bg-cyan-950/40 hover:bg-cyan-900/40 text-cyan-300 font-bold rounded-xl transition-all border border-cyan-500/30 text-[11px]"
             >
               Admin (ujjsingh2005)
             </button>
           </div>
         </div>
 
-        {/* Footer Toggle */}
-        <div className="text-center text-sm text-slate-400">
-          {view === 'login' ? (
-            <p>
-              Don't have an account?{' '}
-              <button
-                type="button"
-                onClick={() => { setError(null); setView('signup'); }}
-                className="text-blue-400 font-bold hover:underline"
-              >
-                Sign Up
-              </button>
-            </p>
-          ) : (
-            <p>
-              Already have an account?{' '}
-              <button
-                type="button"
-                onClick={() => { setError(null); setView('login'); }}
-                className="text-blue-400 font-bold hover:underline"
-              >
-                Sign In
-              </button>
-            </p>
-          )}
-        </div>
       </div>
     </div>
   );
 }
+
