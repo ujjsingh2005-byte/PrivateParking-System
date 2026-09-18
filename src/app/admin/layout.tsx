@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { ShieldCheck, Layers, Crown, Calendar, Home, Lock, KeyRound, Eye, EyeOff, ShieldAlert, Compass } from 'lucide-react';
+import { ShieldCheck, Layers, Crown, Calendar, Home, Lock, KeyRound, Eye, EyeOff, ShieldAlert, Compass, Sparkles } from 'lucide-react';
 
 const MASTER_PASSWORD = 'Ujjwal@123';
 
@@ -41,7 +41,7 @@ export default function AdminLayout({
     } else {
       const nextAttempts = attempts + 1;
       setAttempts(nextAttempts);
-      setError(`Invalid Master Password. (Failed attempts: ${nextAttempts})`);
+      setError(`Invalid Master Security Password. (Failed attempts: ${nextAttempts})`);
     }
   };
 
@@ -60,8 +60,8 @@ export default function AdminLayout({
 
   if (checkingAuth) {
     return (
-      <div className="min-h-screen bg-[#0b1220] flex items-center justify-center text-slate-400 font-mono text-xs">
-        Verifying Security Vault Credentials...
+      <div className="min-h-screen bg-midnight flex items-center justify-center text-slate-400 font-mono text-xs">
+        Verifying Security Vault Telemetry...
       </div>
     );
   }
@@ -71,24 +71,24 @@ export default function AdminLayout({
   // -------------------------------------------------------------
   if (!isUnlocked) {
     return (
-      <div className="min-h-screen bg-[#0b1220] flex items-center justify-center p-4 relative overflow-hidden">
+      <div className="min-h-screen bg-midnight flex items-center justify-center p-4 relative overflow-hidden">
         {/* Ambient Glows */}
-        <div className="absolute top-1/3 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] bg-cyan-500/10 rounded-full blur-3xl pointer-events-none" />
+        <div className="absolute top-1/3 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] bg-violet-600/10 rounded-full blur-3xl pointer-events-none" />
 
-        <div className="w-full max-w-md bg-[#0f172a] border border-white/[0.08] rounded-3xl p-8 shadow-2xl relative z-10 space-y-6">
+        <div className="w-full max-w-md bg-surface-1 border border-white/[0.08] rounded-3xl p-8 shadow-2xl relative z-10 space-y-6">
           <div className="text-center space-y-3">
-            <div className="h-16 w-16 bg-cyan-500/10 border border-cyan-500/30 rounded-2xl flex items-center justify-center mx-auto text-cyan-400 shadow-xl shadow-cyan-500/10">
+            <div className="h-16 w-16 bg-violet-500/15 border border-violet-500/30 rounded-2xl flex items-center justify-center mx-auto text-violet-400 shadow-xl shadow-violet-600/20">
               <Lock className="w-8 h-8" />
             </div>
             <h1 className="text-2xl font-black text-white tracking-tight">Admin Vault Security</h1>
             <p className="text-slate-400 text-xs leading-relaxed">
-              This area is protected by a secondary master access key. Enter your admin security password to unlock full system controls.
+              This area is protected by a secondary master access key. Enter your master security password to unlock full system controls.
             </p>
           </div>
 
           {error && (
-            <div className="p-3.5 bg-red-500/10 border border-red-500/20 text-red-400 rounded-2xl text-xs font-semibold flex items-center gap-2.5">
-              <ShieldAlert className="w-4 h-4 flex-shrink-0" />
+            <div className="p-3.5 bg-rose-500/10 border border-rose-500/25 text-rose-300 rounded-2xl text-xs font-semibold flex items-center gap-2.5">
+              <ShieldAlert className="w-4 h-4 flex-shrink-0 text-rose-400" />
               <span>{error}</span>
             </div>
           )}
@@ -102,7 +102,7 @@ export default function AdminLayout({
                 placeholder="Enter Master Password..."
                 value={passwordInput}
                 onChange={(e) => setPasswordInput(e.target.value)}
-                className="w-full bg-[#0b1220] border border-white/[0.08] rounded-2xl p-4 pl-11 pr-11 text-white placeholder-slate-600 focus:border-cyan-500 outline-none text-xs font-mono tracking-wider transition-all"
+                className="w-full bg-surface-2 border border-white/[0.08] rounded-2xl p-4 pl-11 pr-11 text-white placeholder-slate-500 focus:border-violet-500 outline-none text-xs font-mono tracking-wider transition-all"
               />
               <button
                 type="button"
@@ -115,7 +115,7 @@ export default function AdminLayout({
 
             <button
               type="submit"
-              className="w-full bg-gradient-to-r from-cyan-500 to-indigo-600 hover:from-cyan-400 hover:to-indigo-500 text-white font-black py-4 rounded-2xl transition-all shadow-xl shadow-cyan-500/20 active:scale-[0.98] text-xs flex items-center justify-center gap-2"
+              className="w-full bg-violet-600 hover:bg-violet-500 text-white font-black py-4 rounded-2xl transition-all shadow-xl shadow-violet-600/30 active:scale-[0.98] text-xs uppercase tracking-wider flex items-center justify-center gap-2"
             >
               <ShieldCheck className="w-4 h-4" /> Unlock Admin Portal
             </button>
@@ -124,7 +124,7 @@ export default function AdminLayout({
           <div className="pt-2 text-center">
             <Link
               href="/"
-              className="inline-flex items-center gap-1.5 text-xs font-bold text-slate-500 hover:text-cyan-400 transition-colors"
+              className="inline-flex items-center gap-1.5 text-xs font-bold text-slate-500 hover:text-violet-400 transition-colors"
             >
               <Home className="w-3.5 h-3.5" /> Return to Public Parking Site
             </Link>
@@ -138,19 +138,19 @@ export default function AdminLayout({
   // UNLOCKED ADMIN PORTAL WITH LOCK CONTROL
   // -------------------------------------------------------------
   return (
-    <div className="min-h-screen bg-[#0b1220] text-white flex flex-col">
+    <div className="min-h-screen bg-midnight text-white flex flex-col">
       {/* Dedicated Admin Portal Header */}
-      <header className="border-b border-white/[0.08] bg-[#0b1220]/90 backdrop-blur-md sticky top-0 z-40">
+      <header className="border-b border-white/[0.08] bg-surface-1/90 backdrop-blur-md sticky top-0 z-40">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-16">
             <div className="flex items-center gap-3">
-              <div className="h-9 w-9 bg-cyan-500/10 border border-cyan-500/30 rounded-xl flex items-center justify-center text-cyan-400">
+              <div className="h-9 w-9 bg-violet-500/15 border border-violet-500/30 rounded-xl flex items-center justify-center text-violet-400">
                 <Compass className="w-5 h-5 animate-spin" />
               </div>
               <div>
                 <span className="font-extrabold text-base tracking-tight text-white flex items-center gap-2">
                   Admin Control Portal
-                  <span className="px-2 py-0.5 rounded-full text-[9px] font-mono font-bold uppercase bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
+                  <span className="px-2 py-0.5 rounded-full text-[9px] font-mono font-bold uppercase bg-lime-500/15 text-lime-300 border border-lime-500/30">
                     Vault Unlocked
                   </span>
                 </span>
@@ -168,8 +168,8 @@ export default function AdminLayout({
                     href={item.href}
                     className={`flex items-center gap-2 px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all ${
                       isActive
-                        ? 'bg-cyan-500 text-black shadow-lg shadow-cyan-500/20'
-                        : 'text-slate-400 hover:text-white hover:bg-slate-800'
+                        ? 'bg-violet-600 text-white shadow-lg shadow-violet-600/30'
+                        : 'text-slate-400 hover:text-white hover:bg-surface-2'
                     }`}
                   >
                     <Icon className="w-3.5 h-3.5" />
@@ -183,7 +183,7 @@ export default function AdminLayout({
             <div className="flex items-center gap-3">
               <button
                 onClick={handleLock}
-                className="flex items-center gap-1.5 px-3 py-1.5 bg-red-500/10 hover:bg-red-500/20 text-red-400 border border-red-500/20 rounded-xl text-xs font-bold transition-all"
+                className="flex items-center gap-1.5 px-3 py-1.5 bg-rose-500/10 hover:bg-rose-500/20 text-rose-400 border border-rose-500/20 rounded-xl text-xs font-bold transition-all"
                 title="Lock Admin Portal"
               >
                 <Lock className="w-3.5 h-3.5" />
@@ -192,7 +192,7 @@ export default function AdminLayout({
 
               <Link
                 href="/"
-                className="flex items-center gap-1.5 px-3.5 py-1.5 bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white rounded-xl text-xs font-bold transition-all border border-white/[0.08]"
+                className="flex items-center gap-1.5 px-3.5 py-1.5 bg-surface-2 hover:bg-surface-3 text-slate-300 hover:text-white rounded-xl text-xs font-bold transition-all border border-white/[0.08]"
               >
                 <Home className="w-3.5 h-3.5" />
                 <span>Public Site</span>
@@ -209,4 +209,5 @@ export default function AdminLayout({
     </div>
   );
 }
+
 

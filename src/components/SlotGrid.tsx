@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { supabase } from '@/lib/supabase';
-import { Car, Zap, CheckCircle2, Lock, Clock, Sparkles } from 'lucide-react';
+import { Car, Lock, Clock, Sparkles, CheckCircle2 } from 'lucide-react';
 
 interface Slot {
   id: string;
@@ -22,7 +22,6 @@ export default function SlotGrid({ zoneId, slots, selectedSlotId, onSlotSelect }
   const [slotStatuses, setSlotStatuses] = useState<Record<string, string>>({});
 
   useEffect(() => {
-    // Fetch active bookings for these slots
     const fetchStatuses = async () => {
       if (!slots || slots.length === 0) return;
 
@@ -42,7 +41,6 @@ export default function SlotGrid({ zoneId, slots, selectedSlotId, onSlotSelect }
         if (current >= start && current <= end) {
           statuses[booking.slot_id] = 'booked';
         } else if (start > current) {
-          // If booked in future but not currently
           if (statuses[booking.slot_id] !== 'booked') {
             statuses[booking.slot_id] = 'partial';
           }
@@ -66,22 +64,22 @@ export default function SlotGrid({ zoneId, slots, selectedSlotId, onSlotSelect }
   }, [slots, zoneId]);
 
   return (
-    <div className="parking-bay-grid p-6 sm:p-8 bg-[#070d18] rounded-3xl border border-white/[0.08] relative overflow-hidden">
+    <div className="parking-bay-grid p-6 sm:p-8 bg-[#080b12] rounded-3xl border border-white/[0.08] relative overflow-hidden">
       
       {/* Central Driveway / Lane Marking Indicator */}
-      <div className="hidden md:flex items-center justify-between px-6 py-2 mb-8 bg-[#0b1220]/80 rounded-xl border border-dashed border-white/10 text-[11px] text-slate-500 font-mono">
+      <div className="hidden md:flex items-center justify-between px-6 py-2.5 mb-8 bg-[#111827] rounded-xl border border-dashed border-white/10 text-[11px] text-slate-400 font-mono">
         <span className="flex items-center gap-2">
-          <span className="h-1.5 w-1.5 rounded-full bg-cyan-400"></span>
-          BAY ROW A (NORTH BOUND)
+          <span className="h-1.5 w-1.5 rounded-full bg-purple-400"></span>
+          BAY ROW A (NORTH INGRESS)
         </span>
-        <span className="tracking-widest uppercase text-slate-600">◄ INGRESS / EGRESS DRIVEWAY ►</span>
+        <span className="tracking-widest uppercase text-slate-500 font-bold">◄ INGRESS / EGRESS DRIVING LANE ►</span>
         <span className="flex items-center gap-2">
-          BAY ROW B (SOUTH BOUND)
-          <span className="h-1.5 w-1.5 rounded-full bg-cyan-400"></span>
+          BAY ROW B (SOUTH EGRESS)
+          <span className="h-1.5 w-1.5 rounded-full bg-purple-400"></span>
         </span>
       </div>
 
-      {/* Grid of Parking Bays */}
+      {/* Grid of Realistic Parking Bays */}
       <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4 sm:gap-6">
         {slots.map((slot) => {
           const status = slotStatuses[slot.id] || 'available';
@@ -94,44 +92,46 @@ export default function SlotGrid({ zoneId, slots, selectedSlotId, onSlotSelect }
               key={slot.id}
               onClick={() => !isBooked && onSlotSelect(slot)}
               className={`
-                relative group flex flex-col justify-between p-4 sm:p-5 rounded-2xl border-2 transition-all duration-300
+                relative group flex flex-col justify-between p-4 sm:p-5 rounded-2xl border-2 transition-all duration-200
                 ${
                   isSelected
-                    ? 'bg-cyan-500/10 border-cyan-400 shadow-xl shadow-cyan-500/20 scale-[1.03] z-10'
+                    ? 'bg-[#7c3aed]/15 border-[#7c3aed] glow-violet scale-[1.03] z-10'
                     : isBooked
-                    ? 'bg-red-500/[0.04] border-red-500/20 opacity-70 cursor-not-allowed'
+                    ? 'bg-[#f43f5e]/[0.06] border-[#f43f5e]/30 opacity-75 cursor-not-allowed'
                     : isPartial
-                    ? 'bg-amber-500/[0.04] border-amber-500/30 hover:border-amber-400 hover:bg-amber-500/10 cursor-pointer hover:-translate-y-1 hover:shadow-lg hover:shadow-amber-500/10'
-                    : 'bg-[#0f172a]/80 border-emerald-500/30 hover:border-emerald-400 hover:bg-emerald-500/10 cursor-pointer hover:-translate-y-1 hover:shadow-lg hover:shadow-emerald-500/10'
+                    ? 'bg-[#f59e0b]/[0.06] border-[#f59e0b]/40 hover:border-[#f59e0b] hover:bg-[#f59e0b]/15 glow-amber cursor-pointer hover:-translate-y-1'
+                    : 'bg-[#111827] border-[#84cc16]/40 hover:border-[#84cc16] hover:bg-[#84cc16]/10 glow-lime cursor-pointer hover:-translate-y-1'
                 }
               `}
             >
               {/* Top Curb Line & Slot Identifier */}
-              <div className="flex items-center justify-between mb-4 pb-2 border-b border-white/[0.06]">
-                <span className="font-mono text-xs font-black tracking-wider text-slate-400 group-hover:text-white transition-colors">
-                  BAY #{slot.slot_number < 10 ? `0${slot.slot_number}` : slot.slot_number}
+              <div className="flex items-center justify-between mb-3 pb-2 border-b border-white/[0.06]">
+                <span className="font-mono text-xs font-black tracking-wider text-slate-300 group-hover:text-white transition-colors">
+                  BAY A-{slot.slot_number < 10 ? `0${slot.slot_number}` : slot.slot_number}
                 </span>
 
                 {isBooked ? (
-                  <span className="h-2 w-2 rounded-full bg-red-500" />
+                  <span className="h-2 w-2 rounded-full bg-[#f43f5e]" />
                 ) : isPartial ? (
-                  <span className="h-2 w-2 rounded-full bg-amber-400 animate-pulse" />
+                  <span className="h-2 w-2 rounded-full bg-[#f59e0b] animate-pulse" />
+                ) : isSelected ? (
+                  <span className="h-2 w-2 rounded-full bg-[#7c3aed]" />
                 ) : (
-                  <span className="h-2 w-2 rounded-full bg-emerald-400" />
+                  <span className="h-2 w-2 rounded-full bg-[#84cc16]" />
                 )}
               </div>
 
-              {/* Bay Silhouette / Car Visual */}
-              <div className="my-3 flex flex-col items-center justify-center py-4 bg-[#0b1220]/60 rounded-xl border border-white/[0.04] group-hover:border-white/[0.08] transition-all">
+              {/* Bay Silhouette / Vehicle Visual */}
+              <div className="my-2 flex flex-col items-center justify-center py-4 bg-[#080b12]/80 rounded-xl border border-white/[0.04] group-hover:border-white/[0.08] transition-all">
                 <Car 
-                  className={`w-10 h-10 transition-transform duration-300 ${
+                  className={`w-10 h-10 transition-transform duration-200 ${
                     isSelected
-                      ? 'text-cyan-400 scale-110'
+                      ? 'text-purple-400 scale-110'
                       : isBooked
-                      ? 'text-red-500/60'
+                      ? 'text-[#f43f5e]/70'
                       : isPartial
-                      ? 'text-amber-400/80 group-hover:scale-110'
-                      : 'text-emerald-400 group-hover:scale-110'
+                      ? 'text-[#f59e0b]/90 group-hover:scale-105'
+                      : 'text-[#84cc16] group-hover:scale-105'
                   }`}
                 />
                 
@@ -142,20 +142,20 @@ export default function SlotGrid({ zoneId, slots, selectedSlotId, onSlotSelect }
               {/* Slot Status Tag */}
               <div className="pt-2 text-center">
                 {isBooked ? (
-                  <span className="inline-flex items-center gap-1 text-[11px] font-bold text-red-400">
-                    <Lock className="w-3 h-3" /> Occupied
+                  <span className="inline-flex items-center gap-1 text-[11px] font-bold text-[#f43f5e]">
+                    <Lock className="w-3 h-3" /> OCCUPIED
                   </span>
                 ) : isSelected ? (
-                  <span className="inline-flex items-center gap-1 text-[11px] font-bold text-cyan-300">
-                    <CheckCircle2 className="w-3 h-3" /> Selected
+                  <span className="inline-flex items-center gap-1 text-[11px] font-bold text-purple-300">
+                    <CheckCircle2 className="w-3 h-3" /> SELECTED
                   </span>
                 ) : isPartial ? (
-                  <span className="inline-flex items-center gap-1 text-[10px] font-bold text-amber-400">
-                    <Clock className="w-3 h-3" /> Open Now
+                  <span className="inline-flex items-center gap-1 text-[10px] font-bold text-[#f59e0b]">
+                    <Clock className="w-3 h-3" /> RESERVED SOON
                   </span>
                 ) : (
-                  <span className="inline-flex items-center gap-1 text-[11px] font-bold text-emerald-400">
-                    <Sparkles className="w-3 h-3" /> Available
+                  <span className="inline-flex items-center gap-1 text-[11px] font-bold text-[#84cc16]">
+                    <Sparkles className="w-3 h-3" /> AVAILABLE
                   </span>
                 )}
               </div>
@@ -168,4 +168,5 @@ export default function SlotGrid({ zoneId, slots, selectedSlotId, onSlotSelect }
     </div>
   );
 }
+
 
