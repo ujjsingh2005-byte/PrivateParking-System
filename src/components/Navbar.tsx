@@ -135,17 +135,6 @@ export default function Navbar() {
                 <Sparkles className="w-3.5 h-3.5 text-[#F59E0B]" />
                 <span>Mobility Pass</span>
               </Link>
-
-              {/* Admin Vault Access — STRICTLY VISIBLE ONLY FOR ADMIN */}
-              {isAdmin && (
-                <Link 
-                  href="/admin" 
-                  className="flex items-center gap-1.5 text-xs font-bold px-3.5 py-2 rounded-xl text-[#86EFAC] bg-[#12372A] border border-[#22C55E]/40 hover:bg-[#163D2E] transition-all ml-2 shadow-sm"
-                >
-                  <ShieldCheck className="w-4 h-4 text-[#22C55E]" />
-                  <span>Admin Vault</span>
-                </Link>
-              )}
             </div>
 
             {/* User Profile / Auth Area */}
@@ -153,10 +142,10 @@ export default function Navbar() {
               {user ? (
                 <div className="flex items-center gap-2.5">
                   <div
-                    className="flex items-center gap-2 px-3 py-1.5 rounded-xl bg-[#12372A] border border-white/[0.08] text-xs text-white"
+                    className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-[#12372A] border border-[#16A34A]/30 text-xs text-[#4ADE80] font-mono text-[11px]"
                   >
                     <User className="w-3.5 h-3.5 text-[#22C55E]" />
-                    <span className="max-w-[140px] truncate font-mono text-[11px] text-[#A7B5AD]">{user.email}</span>
+                    <span>Active Account</span>
                   </div>
 
                   <button
@@ -165,7 +154,7 @@ export default function Navbar() {
                     title="Sign Out"
                   >
                     <LogOut className="w-3.5 h-3.5" />
-                    <span className="hidden sm:inline">Sign Out</span>
+                    <span>Sign Out</span>
                   </button>
                 </div>
               ) : (
@@ -213,26 +202,14 @@ export default function Navbar() {
           <span>Mobility Pass</span>
         </Link>
 
-        {isAdmin ? (
-          <Link 
-            href="/admin" 
-            className={`flex flex-col items-center gap-1 py-1 text-[10px] font-medium transition-colors ${
-              pathname?.startsWith('/admin') ? 'text-[#22C55E] font-bold' : 'text-[#86EFAC]'
-            }`}
-          >
-            <ShieldCheck className="w-5 h-5 text-[#22C55E]" />
-            <span>Admin</span>
-          </Link>
-        ) : (
-          <Link 
-            href={user ? "#" : "/auth"} 
-            onClick={user ? handleSignOut : undefined}
-            className="flex flex-col items-center gap-1 py-1 text-[10px] font-medium text-[#A7B5AD]"
-          >
-            {user ? <LogOut className="w-5 h-5 text-[#FB7185]" /> : <LogIn className="w-5 h-5 text-[#22C55E]" />}
-            <span>{user ? "Sign Out" : "Sign In"}</span>
-          </Link>
-        )}
+        <Link 
+          href={user ? "#" : "/auth"} 
+          onClick={user ? handleSignOut : undefined}
+          className="flex flex-col items-center gap-1 py-1 text-[10px] font-medium text-[#A7B5AD]"
+        >
+          {user ? <LogOut className="w-5 h-5 text-[#FB7185]" /> : <LogIn className="w-5 h-5 text-[#22C55E]" />}
+          <span>{user ? "Sign Out" : "Sign In"}</span>
+        </Link>
       </nav>
     </>
   );
