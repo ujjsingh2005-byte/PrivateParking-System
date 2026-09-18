@@ -9,12 +9,14 @@ import {
   LogOut, 
   LogIn, 
   User, 
-  CalendarDays, 
   Plus, 
-  ShieldAlert,
-  Radio
+  ShieldCheck,
+  Radio,
+  Lock
 } from 'lucide-react';
 import { supabase } from '@/lib/supabase';
+
+const ADMIN_EMAIL = 'ujjsingh2005@gmail.com';
 
 export default function Navbar() {
   const pathname = usePathname();
@@ -26,12 +28,14 @@ export default function Navbar() {
       const { data: { session } } = await supabase.auth.getSession();
       setUser(session?.user || null);
       if (session?.user) {
+        const isEmailAdmin = session.user.email?.toLowerCase() === ADMIN_EMAIL.toLowerCase();
         const { data: prof } = await supabase
           .from('profiles')
           .select('role')
           .eq('id', session.user.id)
           .maybeSingle();
-        setIsAdmin(prof?.role === 'admin');
+        
+        setIsAdmin(isEmailAdmin || prof?.role === 'admin');
       } else {
         setIsAdmin(false);
       }
@@ -42,12 +46,15 @@ export default function Navbar() {
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
       setUser(session?.user || null);
       if (session?.user) {
+        const isEmailAdmin = session.user.email?.toLowerCase() === ADMIN_EMAIL.toLowerCase();
         supabase
           .from('profiles')
           .select('role')
           .eq('id', session.user.id)
           .maybeSingle()
-          .then(({ data: prof }) => setIsAdmin(prof?.role === 'admin'));
+          .then(({ data: prof }) => {
+            setIsAdmin(isEmailAdmin || prof?.role === 'admin');
+          });
       } else {
         setIsAdmin(false);
       }
@@ -58,6 +65,7 @@ export default function Navbar() {
 
   const handleSignOut = async () => {
     await supabase.auth.signOut();
+    sessionStorage.removeItem('admin_vault_unlocked');
     window.location.href = '/';
   };
 
@@ -102,11 +110,11 @@ export default function Navbar() {
               </div>
             </div>
             
-            {/* Desktop Navigation Links */}
+            {/* Desktop Navigation Links — Strictly Public User Pages */}
             <div className="hidden md:flex items-center gap-2">
               <Link 
                 href="/" 
-                className={`flex items-center gap-1.5 text-xs font-semibold px-3 py-2 rounded-xl transition-all ${
+                className={`flex items-center gap-1.5 text-xs font-semibold px-3.5 py-2 rounded-xl transition-all ${
                   pathname === '/' 
                     ? 'text-white bg-[#12372A] border border-[#16A34A]/40' 
                     : 'text-[#A7B5AD] hover:text-white hover:bg-white/[0.06]'
@@ -118,7 +126,7 @@ export default function Navbar() {
 
               <Link 
                 href="/subscriptions" 
-                className={`flex items-center gap-1.5 text-xs font-semibold px-3 py-2 rounded-xl transition-all ${
+                className={`flex items-center gap-1.5 text-xs font-semibold px-3.5 py-2 rounded-xl transition-all ${
                   pathname === '/subscriptions' 
                     ? 'text-white bg-[#12372A] border border-[#16A34A]/40' 
                     : 'text-[#A7B5AD] hover:text-white hover:bg-white/[0.06]'
@@ -128,26 +136,13 @@ export default function Navbar() {
                 <span>Mobility Pass</span>
               </Link>
 
-              {user && (
-                <Link 
-                  href="/dashboard" 
-                  className={`flex items-center gap-1.5 text-xs font-semibold px-3 py-2 rounded-xl transition-all ${
-                    pathname === '/dashboard' 
-                      ? 'text-white bg-[#12372A] border border-[#16A34A]/40' 
-                      : 'text-[#A7B5AD] hover:text-white hover:bg-white/[0.06]'
-                  }`}
-                >
-                  <CalendarDays className="w-3.5 h-3.5 text-[#14B8A6]" />
-                  <span>My Passes & Bookings</span>
-                </Link>
-              )}
-
+              {/* Admin Vault Access — STRICTLY VISIBLE ONLY FOR ADMIN */}
               {isAdmin && (
                 <Link 
                   href="/admin" 
-                  className="flex items-center gap-1.5 text-xs font-semibold px-3 py-2 rounded-xl text-[#86EFAC] bg-[#12372A] border border-[#22C55E]/40 hover:bg-[#163D2E] transition-all"
+                  className="flex items-center gap-1.5 text-xs font-bold px-3.5 py-2 rounded-xl text-[#86EFAC] bg-[#12372A] border border-[#22C55E]/40 hover:bg-[#163D2E] transition-all ml-2 shadow-sm"
                 >
-                  <ShieldAlert className="w-3.5 h-3.5 text-[#22C55E]" />
+                  <ShieldCheck className="w-4 h-4 text-[#22C55E]" />
                   <span>Admin Vault</span>
                 </Link>
               )}
@@ -157,13 +152,12 @@ export default function Navbar() {
             <div className="flex items-center gap-3">
               {user ? (
                 <div className="flex items-center gap-2.5">
-                  <Link
-                    href="/profile"
-                    className="hidden sm:flex items-center gap-2 px-3 py-1.5 rounded-xl bg-[#12372A] border border-white/[0.08] hover:border-[#16A34A]/40 transition-colors text-xs text-white"
+                  <div
+                    className="flex items-center gap-2 px-3 py-1.5 rounded-xl bg-[#12372A] border border-white/[0.08] text-xs text-white"
                   >
                     <User className="w-3.5 h-3.5 text-[#22C55E]" />
-                    <span className="max-w-[120px] truncate font-mono text-[11px]">{user.email}</span>
-                  </Link>
+                    <span className="max-w-[140px] truncate font-mono text-[11px] text-[#A7B5AD]">{user.email}</span>
+                  </div>
 
                   <button
                     onClick={handleSignOut}
@@ -189,7 +183,7 @@ export default function Navbar() {
         </div>
       </header>
 
-      {/* Mobile Bottom Navigation Bar */}
+      {/* Mobile Bottom Navigation Bar — Strictly Live Zones & Mobility Pass */}
       <nav className="md:hidden fixed bottom-0 left-0 right-0 z-40 bg-[#17201D] text-white border-t border-white/[0.1] px-4 py-2 flex items-center justify-around shadow-lg">
         <Link 
           href="/" 
@@ -201,17 +195,7 @@ export default function Navbar() {
           <span>Live Zones</span>
         </Link>
 
-        <Link 
-          href="/subscriptions" 
-          className={`flex flex-col items-center gap-1 py-1 text-[10px] font-medium transition-colors ${
-            pathname === '/subscriptions' ? 'text-[#F59E0B] font-bold' : 'text-[#A7B5AD]'
-          }`}
-        >
-          <Sparkles className="w-5 h-5" />
-          <span>Passes</span>
-        </Link>
-
-        {/* Floating Book Action */}
+        {/* Central Reserve Action */}
         <Link 
           href="/" 
           className="h-11 w-11 -mt-5 rounded-full bg-gradient-to-tr from-[#16A34A] to-[#0F766E] flex items-center justify-center text-white shadow-xl shadow-emerald-950/40 active:scale-95 transition-transform"
@@ -220,24 +204,35 @@ export default function Navbar() {
         </Link>
 
         <Link 
-          href={user ? "/dashboard" : "/auth"} 
+          href="/subscriptions" 
           className={`flex flex-col items-center gap-1 py-1 text-[10px] font-medium transition-colors ${
-            pathname === '/dashboard' ? 'text-[#22C55E] font-bold' : 'text-[#A7B5AD]'
+            pathname === '/subscriptions' ? 'text-[#F59E0B] font-bold' : 'text-[#A7B5AD]'
           }`}
         >
-          <CalendarDays className="w-5 h-5" />
-          <span>Passes</span>
+          <Sparkles className="w-5 h-5" />
+          <span>Mobility Pass</span>
         </Link>
 
-        <Link 
-          href={user ? "/profile" : "/auth"} 
-          className={`flex flex-col items-center gap-1 py-1 text-[10px] font-medium transition-colors ${
-            pathname === '/profile' ? 'text-[#22C55E] font-bold' : 'text-[#A7B5AD]'
-          }`}
-        >
-          <User className="w-5 h-5" />
-          <span>Profile</span>
-        </Link>
+        {isAdmin ? (
+          <Link 
+            href="/admin" 
+            className={`flex flex-col items-center gap-1 py-1 text-[10px] font-medium transition-colors ${
+              pathname?.startsWith('/admin') ? 'text-[#22C55E] font-bold' : 'text-[#86EFAC]'
+            }`}
+          >
+            <ShieldCheck className="w-5 h-5 text-[#22C55E]" />
+            <span>Admin</span>
+          </Link>
+        ) : (
+          <Link 
+            href={user ? "#" : "/auth"} 
+            onClick={user ? handleSignOut : undefined}
+            className="flex flex-col items-center gap-1 py-1 text-[10px] font-medium text-[#A7B5AD]"
+          >
+            {user ? <LogOut className="w-5 h-5 text-[#FB7185]" /> : <LogIn className="w-5 h-5 text-[#22C55E]" />}
+            <span>{user ? "Sign Out" : "Sign In"}</span>
+          </Link>
+        )}
       </nav>
     </>
   );

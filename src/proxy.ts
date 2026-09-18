@@ -54,8 +54,12 @@ export async function proxy(request: NextRequest) {
       .eq('id', user.id)
       .maybeSingle();
 
+    const isMasterAdmin = 
+      user.email?.toLowerCase() === 'ujjsingh2005@gmail.com' || 
+      profile?.role === 'admin';
+
     // 3. Strict restriction: Non-admin users attempting to open any private route are immediately redirected to public zones page ( / )
-    if (profile?.role !== 'admin') {
+    if (!isMasterAdmin) {
       return NextResponse.redirect(new URL('/', request.url));
     }
   }

@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { ShieldCheck, Layers, Crown, Calendar, Home, Lock, KeyRound, Eye, EyeOff, ShieldAlert, Sparkles, Shield } from 'lucide-react';
+import { ShieldCheck, Layers, Crown, Calendar, CalendarDays, Home, Lock, KeyRound, Eye, EyeOff, ShieldAlert, Sparkles, Shield } from 'lucide-react';
 
 const MASTER_PASSWORD = 'Ujjwal@123';
 
@@ -56,6 +56,7 @@ export default function AdminLayout({
     { name: 'Zones & Bays', href: '/admin/manage', icon: Layers },
     { name: 'Pass Authority', href: '/admin/subscriptions', icon: Crown },
     { name: 'Global Bookings', href: '/admin/bookings', icon: Calendar },
+    { name: 'Driver Passes', href: '/dashboard', icon: CalendarDays },
   ];
 
   if (checkingAuth) {
