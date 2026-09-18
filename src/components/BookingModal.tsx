@@ -18,8 +18,8 @@ export default function BookingModal({ slotNumber, zoneType, pricePerHour, onClo
 
   const endTime = addHours(startTime, durationHours);
   
-  // Calculate price (converted to INR standard for display, matching Razorpay integration)
-  const displayRate = pricePerHour > 0 ? (pricePerHour * 50 || pricePerHour) : 0;
+  // Calculate price directly in ₹ INR matching database configuration
+  const displayRate = pricePerHour > 0 ? pricePerHour : 0;
   let totalPrice = 0;
   const isPaidZone = zoneType === 'fixed' || (zoneType === 'hybrid' && pricePerHour > 0);
   if (isPaidZone) {

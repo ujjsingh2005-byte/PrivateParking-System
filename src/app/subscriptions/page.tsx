@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react';
 import Script from 'next/script';
 import { supabase } from '@/lib/supabase';
+import { loadRazorpay } from '@/lib/razorpay';
 import { Check, Crown, Zap, Mail, ArrowRight, Ban, Loader2, Sparkles, CheckCircle2, AlertCircle, ShieldCheck } from 'lucide-react';
 import { addMonths } from 'date-fns';
 
@@ -57,7 +58,6 @@ export default function SubscriptionsPage() {
   const [plans, setPlans] = useState<any[]>(DEFAULT_PLANS);
   const [loading, setLoading] = useState(true);
   const [purchasingPlanId, setPurchasingPlanId] = useState<string | null>(null);
-  const [scriptLoaded, setScriptLoaded] = useState(false);
   const [toast, setToast] = useState<{ type: 'success' | 'error'; message: string } | null>(null);
 
   const showToast = (type: 'success' | 'error', message: string) => {
@@ -89,20 +89,26 @@ export default function SubscriptionsPage() {
         setPlans(formatted);
       }
     } catch (err) {
-      console.log('Using default plans fallback', err);
+      // Graceful fallback to DEFAULT_PLANS if table does not exist
+      setPlans(DEFAULT_PLANS);
     }
   };
 
   const fetchSubscription = async (userId: string) => {
-    const { data } = await supabase
-      .from('subscriptions')
-      .select('*')
-      .eq('user_id', userId)
-      .eq('status', 'active')
-      .maybeSingle();
+    try {
+      const { data } = await supabase
+        .from('subscriptions')
+        .select('*')
+        .eq('user_id', userId)
+        .eq('status', 'active')
+        .maybeSingle();
 
-    setActiveSub(data);
-    setLoading(false);
+      setActiveSub(data);
+    } catch (err) {
+      console.error('Error fetching active subscription:', err);
+    } finally {
+      setLoading(false);
+    }
   };
 
   const handlePurchase = async (plan: any) => {
@@ -153,15 +159,20 @@ export default function SubscriptionsPage() {
       return;
     }
 
-    // Paid plan -> Razorpay Payment Flow
-    if (!scriptLoaded || !window.Razorpay) {
-      showToast('error', 'Payment gateway is still initializing. Please try again.');
+    // Paid plan -> Ensure Razorpay SDK is loaded
+    setPurchasingPlanId(plan.id);
+
+    const isLoaded = await loadRazorpay();
+    if (!isLoaded || !(window as any).Razorpay) {
+      showToast('error', 'Payment gateway failed to initialize. Please check your internet connection.');
+      setPurchasingPlanId(null);
       return;
     }
 
     const razorpayKeyId = process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID;
     if (!razorpayKeyId) {
-      showToast('error', 'Payment Gateway Key is not configured.');
+      showToast('error', 'Payment configuration missing: NEXT_PUBLIC_RAZORPAY_KEY_ID is not configured.');
+      setPurchasingPlanId(null);
       return;
     }
 
@@ -257,12 +268,6 @@ export default function SubscriptionsPage() {
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 min-h-screen bg-[#FAF9F6]">
-      <Script
-        src="https://checkout.razorpay.com/v1/checkout.js"
-        strategy="afterInteractive"
-        onLoad={() => setScriptLoaded(true)}
-      />
-
       {/* Toast Notification */}
       {toast && (
         <div className={`fixed top-20 right-6 z-50 p-4 rounded-2xl border shadow-2xl flex items-center gap-3 animate-in slide-in-from-top-4 duration-300 text-xs font-bold ${

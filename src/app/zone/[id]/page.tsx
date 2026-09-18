@@ -5,6 +5,7 @@ import { supabase } from '@/lib/supabase';
 import SlotGrid from '@/components/SlotGrid';
 import BookingModal from '@/components/BookingModal';
 import { createBooking, checkAvailability } from '@/services/bookingService';
+import { loadRazorpay } from '@/lib/razorpay';
 import { ArrowLeft, Zap, ShieldCheck, Video, Clock, CreditCard, Sparkles, CheckCircle2, AlertCircle, Compass } from 'lucide-react';
 import Link from 'next/link';
 
@@ -114,6 +115,19 @@ export default function ZonePage({ params }: { params: Promise<{ id: string }> }
         return;
       }
 
+      // Ensure Razorpay SDK is loaded
+      const isLoaded = await loadRazorpay();
+      if (!isLoaded || !(window as any).Razorpay) {
+        showNotification('error', 'Unable to initialize Razorpay payment gateway. Please check your internet connection.');
+        return;
+      }
+
+      const razorpayKeyId = process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID;
+      if (!razorpayKeyId) {
+        showNotification('error', 'Payment configuration missing: NEXT_PUBLIC_RAZORPAY_KEY_ID is not configured.');
+        return;
+      }
+
       // Generate UUID
       const bookingId = 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
         const r = Math.random() * 16 | 0, v = c === 'x' ? r : (r & 0x3 | 0x8);
@@ -139,7 +153,7 @@ export default function ZonePage({ params }: { params: Promise<{ id: string }> }
       const orderData = await orderRes.json();
 
       const razorpayOptions = {
-        key: process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID,
+        key: razorpayKeyId,
         amount: orderData.amount,
         currency: orderData.currency || 'INR',
         name: 'PARKORA Smart Mobility',
@@ -187,7 +201,7 @@ export default function ZonePage({ params }: { params: Promise<{ id: string }> }
         },
         modal: {
           ondismiss: function () {
-            showNotification('error', 'Payment cancelled. Reservation was not created.');
+            showNotification('error', 'Payment was not completed. Bay reservation was cancelled.');
           }
         }
       };
@@ -308,12 +322,12 @@ export default function ZonePage({ params }: { params: Promise<{ id: string }> }
         <div className="p-5 bg-[#12372A] rounded-2xl border border-[#16A34A]/30 min-w-[220px] text-right relative z-10 shadow-sm">
           <span className="text-[11px] font-bold text-[#A7B5AD] uppercase tracking-wider block mb-1">Standard Hourly Rate</span>
           <div className="text-2xl font-black text-white font-mono">
-            {zone.price_per_hour > 0 ? `₹${zone.price_per_hour * 50 || zone.price_per_hour}` : 'Included'}
+            {zone.price_per_hour > 0 ? `₹${zone.price_per_hour}` : 'Included'}
             {zone.price_per_hour > 0 && <span className="text-xs font-normal text-[#A7B5AD]">/hr</span>}
           </div>
           {zone.subscription_price > 0 && (
             <div className="text-xs text-[#4ADE80] font-bold font-mono mt-1">
-              or ₹{zone.subscription_price * 50 || zone.subscription_price}/mo with Pro Pass
+              or ₹{zone.subscription_price}/mo with Pro Pass
             </div>
           )}
           <div className="mt-3 pt-3 border-t border-white/[0.08] flex items-center justify-between text-[11px] text-[#A7B5AD]">
