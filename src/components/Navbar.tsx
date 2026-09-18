@@ -5,12 +5,11 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { 
   Car, 
-  Crown, 
+  Sparkles, 
   LogOut, 
   LogIn, 
   User, 
   CalendarDays, 
-  LayoutDashboard, 
   Plus, 
   ShieldAlert,
   Radio
@@ -70,30 +69,36 @@ export default function Navbar() {
   return (
     <>
       {/* Top Desktop & Tablet Header */}
-      <header className="border-b border-white/[0.08] bg-[#111827]/90 backdrop-blur-xl sticky top-0 z-40">
+      <header className="border-b border-[#DDE5DF] bg-[#17201D] text-white sticky top-0 z-40 shadow-sm">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between h-16 items-center">
             
             {/* Logo & Live Status Indicator */}
             <div className="flex items-center gap-4">
               <Link href="/" className="flex items-center gap-2.5 group">
-                <div className="h-9 w-9 rounded-xl bg-gradient-to-tr from-[#7c3aed] to-[#a855f7] flex items-center justify-center text-white shadow-lg shadow-purple-600/25 group-hover:scale-105 transition-transform">
+                <div className="h-9 w-9 rounded-xl bg-gradient-to-br from-[#16A34A] to-[#0F766E] flex items-center justify-center text-white shadow-md shadow-emerald-950/20 group-hover:scale-105 transition-transform">
                   <Car className="w-5 h-5" />
                 </div>
                 <div className="flex flex-col">
-                  <span className="font-extrabold text-lg tracking-tight text-white flex items-center gap-1.5">
-                    SMARTPARK
-                  </span>
+                  <div className="flex items-center gap-1.5">
+                    <span className="font-extrabold text-lg tracking-tight text-white font-mono">
+                      PARKORA
+                    </span>
+                    <span className="text-[9px] font-bold px-1.5 py-0.5 rounded bg-[#12372A] text-[#22C55E] border border-[#16A34A]/40 tracking-wider">
+                      PRO
+                    </span>
+                  </div>
+                  <span className="text-[10px] text-[#A7B5AD] tracking-wide -mt-1 font-medium">SMART MOBILITY</span>
                 </div>
               </Link>
 
-              {/* Live Operational Status (Lime Green) */}
-              <div className="hidden sm:flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-[#84cc16]/10 border border-[#84cc16]/20 text-[#84cc16] text-[11px] font-semibold">
+              {/* Live Operational Status (Emerald) */}
+              <div className="hidden sm:flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-[#12372A] border border-[#16A34A]/30 text-[#4ADE80] text-[11px] font-semibold">
                 <span className="relative flex h-2 w-2">
-                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#84cc16] opacity-75"></span>
-                  <span className="relative inline-flex rounded-full h-2 w-2 bg-[#84cc16]"></span>
+                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#22C55E] opacity-75"></span>
+                  <span className="relative inline-flex rounded-full h-2 w-2 bg-[#22C55E]"></span>
                 </span>
-                <span>● LIVE</span>
+                <span>TELEMETRY LIVE</span>
               </div>
             </div>
             
@@ -103,24 +108,24 @@ export default function Navbar() {
                 href="/" 
                 className={`flex items-center gap-1.5 text-xs font-semibold px-3 py-2 rounded-xl transition-all ${
                   pathname === '/' 
-                    ? 'text-white bg-[#7c3aed]/20 border border-[#7c3aed]/40' 
-                    : 'text-slate-300 hover:text-white hover:bg-white/[0.04]'
+                    ? 'text-white bg-[#12372A] border border-[#16A34A]/40' 
+                    : 'text-[#A7B5AD] hover:text-white hover:bg-white/[0.06]'
                 }`}
               >
-                <Radio className="w-3.5 h-3.5 text-purple-400" />
-                <span>Live Parking</span>
+                <Radio className="w-3.5 h-3.5 text-[#22C55E]" />
+                <span>Live Zones</span>
               </Link>
 
               <Link 
                 href="/subscriptions" 
                 className={`flex items-center gap-1.5 text-xs font-semibold px-3 py-2 rounded-xl transition-all ${
                   pathname === '/subscriptions' 
-                    ? 'text-white bg-[#7c3aed]/20 border border-[#7c3aed]/40' 
-                    : 'text-slate-300 hover:text-white hover:bg-white/[0.04]'
+                    ? 'text-white bg-[#12372A] border border-[#16A34A]/40' 
+                    : 'text-[#A7B5AD] hover:text-white hover:bg-white/[0.06]'
                 }`}
               >
-                <Crown className="w-3.5 h-3.5 text-amber-400" />
-                <span>Pro Pass</span>
+                <Sparkles className="w-3.5 h-3.5 text-[#F59E0B]" />
+                <span>Mobility Pass</span>
               </Link>
 
               {user && (
@@ -128,22 +133,22 @@ export default function Navbar() {
                   href="/dashboard" 
                   className={`flex items-center gap-1.5 text-xs font-semibold px-3 py-2 rounded-xl transition-all ${
                     pathname === '/dashboard' 
-                      ? 'text-white bg-[#7c3aed]/20 border border-[#7c3aed]/40' 
-                      : 'text-slate-300 hover:text-white hover:bg-white/[0.04]'
+                      ? 'text-white bg-[#12372A] border border-[#16A34A]/40' 
+                      : 'text-[#A7B5AD] hover:text-white hover:bg-white/[0.06]'
                   }`}
                 >
-                  <CalendarDays className="w-3.5 h-3.5 text-purple-400" />
-                  <span>Bookings & Pass</span>
+                  <CalendarDays className="w-3.5 h-3.5 text-[#14B8A6]" />
+                  <span>My Passes & Bookings</span>
                 </Link>
               )}
 
               {isAdmin && (
                 <Link 
                   href="/admin" 
-                  className="flex items-center gap-1.5 text-xs font-semibold px-3 py-2 rounded-xl text-purple-300 hover:text-white bg-purple-950/40 border border-purple-800/40 hover:bg-purple-900/40 transition-all"
+                  className="flex items-center gap-1.5 text-xs font-semibold px-3 py-2 rounded-xl text-[#86EFAC] bg-[#12372A] border border-[#22C55E]/40 hover:bg-[#163D2E] transition-all"
                 >
-                  <ShieldAlert className="w-3.5 h-3.5 text-purple-400" />
-                  <span>Admin Console</span>
+                  <ShieldAlert className="w-3.5 h-3.5 text-[#22C55E]" />
+                  <span>Admin Vault</span>
                 </Link>
               )}
             </div>
@@ -154,15 +159,15 @@ export default function Navbar() {
                 <div className="flex items-center gap-2.5">
                   <Link
                     href="/profile"
-                    className="hidden sm:flex items-center gap-2 px-3 py-1.5 rounded-xl bg-[#172033] border border-white/[0.08] hover:border-purple-500/40 transition-colors text-xs text-slate-200"
+                    className="hidden sm:flex items-center gap-2 px-3 py-1.5 rounded-xl bg-[#12372A] border border-white/[0.08] hover:border-[#16A34A]/40 transition-colors text-xs text-white"
                   >
-                    <User className="w-3.5 h-3.5 text-purple-400" />
+                    <User className="w-3.5 h-3.5 text-[#22C55E]" />
                     <span className="max-w-[120px] truncate font-mono text-[11px]">{user.email}</span>
                   </Link>
 
                   <button
                     onClick={handleSignOut}
-                    className="flex items-center gap-1.5 px-3 py-1.5 bg-[#f43f5e]/10 text-[#f43f5e] hover:bg-[#f43f5e]/20 border border-[#f43f5e]/20 rounded-xl text-xs font-semibold transition-all"
+                    className="flex items-center gap-1.5 px-3 py-1.5 bg-[#E45757]/15 text-[#FB7185] hover:bg-[#E45757]/25 border border-[#E45757]/30 rounded-xl text-xs font-semibold transition-all"
                     title="Sign Out"
                   >
                     <LogOut className="w-3.5 h-3.5" />
@@ -172,7 +177,7 @@ export default function Navbar() {
               ) : (
                 <Link 
                   href="/auth" 
-                  className="flex items-center gap-1.5 bg-[#7c3aed] hover:bg-[#6d28d9] text-white text-xs font-bold px-4 py-2 rounded-xl transition-all shadow-lg shadow-purple-600/25 active:scale-[0.98]"
+                  className="flex items-center gap-1.5 bg-[#16A34A] hover:bg-[#15803D] text-white text-xs font-bold px-4 py-2 rounded-xl transition-all shadow-md shadow-emerald-950/20 active:scale-[0.98]"
                 >
                   <LogIn className="w-3.5 h-3.5" />
                   <span>Sign In</span>
@@ -185,31 +190,31 @@ export default function Navbar() {
       </header>
 
       {/* Mobile Bottom Navigation Bar */}
-      <nav className="md:hidden fixed bottom-0 left-0 right-0 z-40 bg-[#111827]/95 backdrop-blur-xl border-t border-white/[0.08] px-4 py-2 flex items-center justify-around">
+      <nav className="md:hidden fixed bottom-0 left-0 right-0 z-40 bg-[#17201D] text-white border-t border-white/[0.1] px-4 py-2 flex items-center justify-around shadow-lg">
         <Link 
           href="/" 
           className={`flex flex-col items-center gap-1 py-1 text-[10px] font-medium transition-colors ${
-            pathname === '/' ? 'text-purple-400 font-bold' : 'text-slate-400'
+            pathname === '/' ? 'text-[#22C55E] font-bold' : 'text-[#A7B5AD]'
           }`}
         >
           <Radio className="w-5 h-5" />
-          <span>Live Parking</span>
+          <span>Live Zones</span>
         </Link>
 
         <Link 
           href="/subscriptions" 
           className={`flex flex-col items-center gap-1 py-1 text-[10px] font-medium transition-colors ${
-            pathname === '/subscriptions' ? 'text-amber-400 font-bold' : 'text-slate-400'
+            pathname === '/subscriptions' ? 'text-[#F59E0B] font-bold' : 'text-[#A7B5AD]'
           }`}
         >
-          <Crown className="w-5 h-5" />
-          <span>Pro Pass</span>
+          <Sparkles className="w-5 h-5" />
+          <span>Passes</span>
         </Link>
 
         {/* Floating Book Action */}
         <Link 
           href="/" 
-          className="h-11 w-11 -mt-5 rounded-full bg-gradient-to-tr from-[#7c3aed] to-[#a855f7] flex items-center justify-center text-white shadow-xl shadow-purple-600/40 active:scale-95 transition-transform"
+          className="h-11 w-11 -mt-5 rounded-full bg-gradient-to-tr from-[#16A34A] to-[#0F766E] flex items-center justify-center text-white shadow-xl shadow-emerald-950/40 active:scale-95 transition-transform"
         >
           <Plus className="w-6 h-6" />
         </Link>
@@ -217,17 +222,17 @@ export default function Navbar() {
         <Link 
           href={user ? "/dashboard" : "/auth"} 
           className={`flex flex-col items-center gap-1 py-1 text-[10px] font-medium transition-colors ${
-            pathname === '/dashboard' ? 'text-purple-400 font-bold' : 'text-slate-400'
+            pathname === '/dashboard' ? 'text-[#22C55E] font-bold' : 'text-[#A7B5AD]'
           }`}
         >
           <CalendarDays className="w-5 h-5" />
-          <span>Bookings</span>
+          <span>Passes</span>
         </Link>
 
         <Link 
           href={user ? "/profile" : "/auth"} 
           className={`flex flex-col items-center gap-1 py-1 text-[10px] font-medium transition-colors ${
-            pathname === '/profile' ? 'text-purple-400 font-bold' : 'text-slate-400'
+            pathname === '/profile' ? 'text-[#22C55E] font-bold' : 'text-[#A7B5AD]'
           }`}
         >
           <User className="w-5 h-5" />
@@ -237,5 +242,6 @@ export default function Navbar() {
     </>
   );
 }
+
 
 

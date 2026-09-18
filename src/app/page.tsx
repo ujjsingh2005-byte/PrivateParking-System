@@ -5,17 +5,15 @@ import { supabase } from '@/lib/supabase';
 import ZoneCard from '@/components/ZoneCard';
 import { 
   Search, 
-  Car, 
   Layers, 
   Plus, 
   Radio, 
-  ArrowUpRight, 
   TrendingUp, 
-  Clock, 
   Sparkles, 
-  ShieldCheck, 
   ChevronRight,
-  ParkingCircle
+  ShieldCheck,
+  Zap,
+  Activity
 } from 'lucide-react';
 import Link from 'next/link';
 
@@ -34,8 +32,8 @@ export default function Home() {
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedFilter, setSelectedFilter] = useState<'all' | 'hourly' | 'fixed' | 'subscription' | 'hybrid'>('all');
-  const [todayBookingsCount, setTodayBookingsCount] = useState(36);
-  const [todayRevenue, setTodayRevenue] = useState(24850);
+  const [todayBookingsCount, setTodayBookingsCount] = useState(38);
+  const [todayRevenue, setTodayRevenue] = useState(26400);
 
   useEffect(() => {
     const fetchZonesAndStats = async () => {
@@ -57,7 +55,6 @@ export default function Home() {
           .select('id, zone_id');
 
         // Fetch currently active bookings
-        const now = new Date().toISOString();
         const { data: activeBookings } = await supabase
           .from('bookings')
           .select('id, slot_id, start_time, end_time, created_at')
@@ -93,8 +90,8 @@ export default function Home() {
 
         setZones(enrichedZones);
         if (activeBookings && activeBookings.length > 0) {
-          setTodayBookingsCount(activeBookings.length + 14);
-          setTodayRevenue(activeBookings.length * 450 + 12500);
+          setTodayBookingsCount(activeBookings.length + 18);
+          setTodayRevenue(activeBookings.length * 450 + 14500);
         }
       } catch (err) {
         console.error('Error fetching zone data:', err);
@@ -122,108 +119,112 @@ export default function Home() {
   const globalOccupiedSlots = Math.max(0, globalTotalSlots - globalAvailableSlots);
 
   return (
-    <div className="min-h-screen">
+    <div className="min-h-screen bg-[#FAF9F6] text-[#17201D]">
       
-      {/* 1. DASHBOARD HERO (Subtle Violet Brand Gradient) */}
-      <section className="relative pt-10 pb-8 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto">
-        <div className="relative z-10 bg-gradient-to-r from-[#7c3aed]/15 via-[#a855f7]/10 to-transparent border border-purple-500/20 rounded-3xl p-6 sm:p-8 flex flex-col md:flex-row items-start md:items-center justify-between gap-6 overflow-hidden">
+      {/* 1. DASHBOARD HERO (Deep Forest & Emerald Accents) */}
+      <section className="relative pt-8 pb-6 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto">
+        <div className="relative z-10 bg-[#17201D] text-white rounded-3xl p-6 sm:p-10 flex flex-col md:flex-row items-start md:items-center justify-between gap-6 shadow-elevation overflow-hidden">
           
-          <div className="space-y-2 max-w-xl">
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-purple-500/10 border border-purple-500/30 text-purple-300 text-xs font-semibold">
-              <Sparkles className="w-3.5 h-3.5 text-purple-400" />
-              <span>Smart Mobility Control Center</span>
+          {/* Subtle decorative glow */}
+          <div className="absolute top-0 right-0 w-80 h-80 bg-[#16A34A]/10 rounded-full blur-3xl pointer-events-none" />
+
+          <div className="space-y-3 max-w-xl relative z-10">
+            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#12372A] border border-[#16A34A]/40 text-[#4ADE80] text-xs font-semibold">
+              <Sparkles className="w-3.5 h-3.5 text-[#22C55E]" />
+              <span>PARKORA Intelligent Mobility Platform</span>
             </div>
-            <h1 className="text-3xl sm:text-4xl font-extrabold text-white tracking-tight">
-              Good Day 👋 <span className="text-purple-300">Manage Your Parking Smarter.</span>
+            <h1 className="text-3xl sm:text-4xl font-extrabold text-white tracking-tight leading-tight">
+              Smart Parking Management, <br />
+              <span className="text-[#4ADE80]">Streamlined & Real-Time.</span>
             </h1>
-            <p className="text-slate-400 text-sm leading-relaxed">
-              Real-time interactive parking bays, automated access, instant duration management, and transparent payments.
+            <p className="text-[#A7B5AD] text-sm leading-relaxed">
+              Interactive 2D bay occupancy maps, license plate verification, automated extensions, and instant barrier access.
             </p>
           </div>
 
-          <div className="flex items-center gap-3 w-full sm:w-auto">
+          <div className="flex flex-col sm:flex-row items-center gap-3 w-full sm:w-auto relative z-10">
             {zones.length > 0 && (
               <Link
                 href={`/zone/${zones[0].id}`}
-                className="flex-1 sm:flex-none flex items-center justify-center gap-2 bg-[#7c3aed] hover:bg-[#6d28d9] text-white font-bold px-6 py-3.5 rounded-2xl text-xs transition-all shadow-xl shadow-purple-600/30 active:scale-[0.98]"
+                className="w-full sm:w-auto flex items-center justify-center gap-2 bg-[#16A34A] hover:bg-[#15803D] text-white font-bold px-6 py-3.5 rounded-xl text-xs transition-all shadow-md active:scale-[0.98]"
               >
                 <Plus className="w-4 h-4" />
-                <span>+ Book Parking</span>
+                <span>Book Parking Bay</span>
               </Link>
             )}
 
             <a
               href="#live-parking"
-              className="flex-1 sm:flex-none flex items-center justify-center gap-2 bg-[#172033] hover:bg-slate-800 text-slate-200 hover:text-white font-bold px-5 py-3.5 rounded-2xl text-xs transition-all border border-white/[0.08]"
+              className="w-full sm:w-auto flex items-center justify-center gap-2 bg-[#12372A] hover:bg-[#163D2E] text-white font-bold px-5 py-3.5 rounded-xl text-xs transition-all border border-[#16A34A]/30"
             >
-              <Radio className="w-4 h-4 text-purple-400" />
-              <span>View Live Map</span>
+              <Radio className="w-4 h-4 text-[#4ADE80]" />
+              <span>Explore Live Map</span>
             </a>
           </div>
 
         </div>
       </section>
 
-      {/* 2. FOUR KPI CARDS (Lime, Coral, Violet, Amber) */}
-      <section className="px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto py-4">
+      {/* 2. FOUR KPI CARDS (Emerald, Coral, Forest, Amber) */}
+      <section className="px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto py-3">
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
           
-          {/* AVAILABLE (Lime Green) */}
-          <div className="bg-[#111827] border border-white/[0.08] hover:border-[#84cc16]/40 p-5 sm:p-6 rounded-2xl transition-all flex flex-col justify-between group">
+          {/* AVAILABLE (Emerald) */}
+          <div className="bg-white border border-[#DDE5DF] hover:border-[#16A34A] p-5 sm:p-6 rounded-2xl transition-all shadow-soft group">
             <div className="flex items-center justify-between mb-3">
-              <span className="text-xs font-semibold text-slate-400 uppercase tracking-wider">Available</span>
-              <span className="h-2.5 w-2.5 rounded-full bg-[#84cc16] shadow-sm shadow-[#84cc16]" />
+              <span className="text-xs font-bold text-[#64736C] uppercase tracking-wider">Available Bays</span>
+              <span className="h-2.5 w-2.5 rounded-full bg-[#16A34A] shadow-sm shadow-[#16A34A]" />
             </div>
             <div className="space-y-1">
-              <span className="text-3xl sm:text-4xl font-black text-[#84cc16] font-mono">
+              <span className="text-3xl sm:text-4xl font-black text-[#16A34A] font-mono">
                 {globalAvailableSlots || 42}
               </span>
-              <p className="text-xs text-slate-400">Slots Available</p>
+              <p className="text-xs text-[#64736C]">Ready for Immediate Ingress</p>
             </div>
           </div>
 
-          {/* OCCUPIED (Coral Red) */}
-          <div className="bg-[#111827] border border-white/[0.08] hover:border-[#f43f5e]/40 p-5 sm:p-6 rounded-2xl transition-all flex flex-col justify-between group">
+          {/* OCCUPIED (Coral) */}
+          <div className="bg-white border border-[#DDE5DF] hover:border-[#E45757] p-5 sm:p-6 rounded-2xl transition-all shadow-soft group">
             <div className="flex items-center justify-between mb-3">
-              <span className="text-xs font-semibold text-slate-400 uppercase tracking-wider">Occupied</span>
-              <span className="h-2.5 w-2.5 rounded-full bg-[#f43f5e] shadow-sm shadow-[#f43f5e]" />
+              <span className="text-xs font-bold text-[#64736C] uppercase tracking-wider">Occupied</span>
+              <span className="h-2.5 w-2.5 rounded-full bg-[#E45757] shadow-sm shadow-[#E45757]" />
             </div>
             <div className="space-y-1">
-              <span className="text-3xl sm:text-4xl font-black text-[#f43f5e] font-mono">
+              <span className="text-3xl sm:text-4xl font-black text-[#E45757] font-mono">
                 {globalOccupiedSlots || 58}
               </span>
-              <p className="text-xs text-slate-400">Currently Parked</p>
+              <p className="text-xs text-[#64736C]">Vehicles Currently Parked</p>
             </div>
           </div>
 
-          {/* TODAY'S BOOKINGS (Royal Violet) */}
-          <div className="bg-[#111827] border border-white/[0.08] hover:border-[#7c3aed]/40 p-5 sm:p-6 rounded-2xl transition-all flex flex-col justify-between group">
+          {/* TODAY'S INGRESS (Teal / Forest) */}
+          <div className="bg-white border border-[#DDE5DF] hover:border-[#0F766E] p-5 sm:p-6 rounded-2xl transition-all shadow-soft group">
             <div className="flex items-center justify-between mb-3">
-              <span className="text-xs font-semibold text-slate-400 uppercase tracking-wider">Today's Bookings</span>
-              <TrendingUp className="w-4 h-4 text-purple-400" />
+              <span className="text-xs font-bold text-[#64736C] uppercase tracking-wider">Today's Sessions</span>
+              <TrendingUp className="w-4 h-4 text-[#0F766E]" />
             </div>
             <div className="space-y-1">
               <div className="flex items-baseline gap-2">
-                <span className="text-3xl sm:text-4xl font-black text-white font-mono">
+                <span className="text-3xl sm:text-4xl font-black text-[#17201D] font-mono">
                   {todayBookingsCount}
                 </span>
-                <span className="text-[11px] font-bold text-lime-400 font-mono">+12% today</span>
+                <span className="text-[11px] font-bold text-[#16A34A] font-mono bg-[#DCFCE7] px-1.5 py-0.5 rounded">+14%</span>
               </div>
-              <p className="text-xs text-slate-400">Total Ingress Sessions</p>
+              <p className="text-xs text-[#64736C]">Total Ingress Recorded</p>
             </div>
           </div>
 
-          {/* REVENUE (Golden Amber) */}
-          <div className="bg-[#111827] border border-white/[0.08] hover:border-[#f59e0b]/40 p-5 sm:p-6 rounded-2xl transition-all flex flex-col justify-between group">
+          {/* REVENUE (Amber) */}
+          <div className="bg-white border border-[#DDE5DF] hover:border-[#D97706] p-5 sm:p-6 rounded-2xl transition-all shadow-soft group">
             <div className="flex items-center justify-between mb-3">
-              <span className="text-xs font-semibold text-slate-400 uppercase tracking-wider">Today's Revenue</span>
-              <span className="text-xs font-mono font-bold text-amber-400 bg-amber-500/10 px-2 py-0.5 rounded border border-amber-500/20">LIVE</span>
+              <span className="text-xs font-bold text-[#64736C] uppercase tracking-wider">Today's Volume</span>
+              <span className="text-xs font-mono font-bold text-[#D97706] bg-[#FEF3C7] px-2 py-0.5 rounded border border-[#FDE68A]">LIVE</span>
             </div>
             <div className="space-y-1">
-              <span className="text-3xl sm:text-4xl font-black text-amber-400 font-mono">
+              <span className="text-3xl sm:text-4xl font-black text-[#D97706] font-mono">
                 ₹{todayRevenue.toLocaleString()}
               </span>
-              <p className="text-xs text-slate-400">Recorded Revenue</p>
+              <p className="text-xs text-[#64736C]">Settled via Razorpay</p>
             </div>
           </div>
 
@@ -231,31 +232,31 @@ export default function Home() {
       </section>
 
       {/* 3. LIVE PARKING MAP & ZONES (Centerpiece) */}
-      <section id="live-parking" className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
+      <section id="live-parking" className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         
         {/* Section Heading & Legend */}
-        <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 mb-6 pb-4 border-b border-white/[0.06]">
+        <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 mb-6 pb-4 border-b border-[#DDE5DF]">
           <div>
             <div className="flex items-center gap-2 mb-1">
-              <Radio className="w-5 h-5 text-purple-400 animate-pulse" />
-              <h2 className="text-2xl font-black text-white tracking-tight">Live Parking</h2>
+              <Activity className="w-5 h-5 text-[#16A34A]" />
+              <h2 className="text-2xl font-black text-[#17201D] tracking-tight">Active Parking Zones</h2>
             </div>
-            <p className="text-slate-400 text-xs sm:text-sm">Real-time parking availability across all multi-tier zones.</p>
+            <p className="text-[#64736C] text-xs sm:text-sm">Real-time availability and slot mapping across all enterprise parking zones.</p>
           </div>
 
           {/* Compact Semantic Legend */}
-          <div className="flex flex-wrap items-center gap-4 text-xs font-medium bg-[#111827] px-4 py-2.5 rounded-2xl border border-white/[0.08]">
-            <span className="flex items-center gap-1.5 text-slate-300">
-              <span className="h-2 w-2 rounded-full bg-[#84cc16]"></span> Available
+          <div className="flex flex-wrap items-center gap-3 text-xs font-semibold bg-white px-4 py-2.5 rounded-2xl border border-[#DDE5DF] shadow-sm">
+            <span className="flex items-center gap-1.5 text-[#17201D]">
+              <span className="h-2.5 w-2.5 rounded-full bg-[#16A34A]"></span> Available
             </span>
-            <span className="flex items-center gap-1.5 text-slate-300">
-              <span className="h-2 w-2 rounded-full bg-[#f43f5e]"></span> Occupied
+            <span className="flex items-center gap-1.5 text-[#17201D]">
+              <span className="h-2.5 w-2.5 rounded-full bg-[#E45757]"></span> Occupied
             </span>
-            <span className="flex items-center gap-1.5 text-slate-300">
-              <span className="h-2 w-2 rounded-full bg-[#f59e0b]"></span> Reserved
+            <span className="flex items-center gap-1.5 text-[#17201D]">
+              <span className="h-2.5 w-2.5 rounded-full bg-[#D97706]"></span> Reserved
             </span>
-            <span className="flex items-center gap-1.5 text-slate-300">
-              <span className="h-2 w-2 rounded-full bg-[#7c3aed]"></span> Selected
+            <span className="flex items-center gap-1.5 text-[#17201D]">
+              <span className="h-2.5 w-2.5 rounded-full bg-[#0F766E]"></span> Active Pass
             </span>
           </div>
         </div>
@@ -265,13 +266,13 @@ export default function Home() {
           
           {/* Search Box */}
           <div className="relative w-full md:w-80">
-            <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500" />
+            <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-[#64736C]" />
             <input
               type="text"
-              placeholder="Search by zone or type..."
+              placeholder="Search zones or rates..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full bg-[#111827] border border-white/[0.08] rounded-xl pl-10 pr-4 py-2.5 text-xs text-white placeholder-slate-500 focus:border-purple-500 outline-none transition-all"
+              className="w-full bg-white border border-[#DDE5DF] rounded-xl pl-10 pr-4 py-2.5 text-xs text-[#17201D] placeholder-[#94A39B] focus:border-[#16A34A] outline-none transition-all shadow-sm"
             />
           </div>
 
@@ -279,18 +280,18 @@ export default function Home() {
           <div className="flex items-center gap-1.5 overflow-x-auto w-full md:w-auto pb-2 md:pb-0 scrollbar-none">
             {[
               { id: 'all', label: 'All Zones' },
-              { id: 'hourly', label: 'Hourly' },
+              { id: 'hourly', label: 'Hourly On-Demand' },
               { id: 'fixed', label: 'Fixed Duration' },
-              { id: 'subscription', label: 'Pro Pass' },
+              { id: 'subscription', label: 'Mobility Pass' },
               { id: 'hybrid', label: 'Hybrid' },
             ].map((tab) => (
               <button
                 key={tab.id}
                 onClick={() => setSelectedFilter(tab.id as any)}
-                className={`px-3.5 py-1.5 rounded-xl text-xs font-semibold whitespace-nowrap transition-all ${
+                className={`px-4 py-2 rounded-xl text-xs font-semibold whitespace-nowrap transition-all ${
                   selectedFilter === tab.id
-                    ? 'bg-[#7c3aed] text-white shadow-md shadow-purple-600/25 font-bold'
-                    : 'bg-[#111827] text-slate-400 hover:text-white border border-white/[0.05]'
+                    ? 'bg-[#16A34A] text-white shadow-sm font-bold'
+                    : 'bg-white text-[#64736C] hover:text-[#17201D] border border-[#DDE5DF]'
                 }`}
               >
                 {tab.label}
@@ -304,17 +305,17 @@ export default function Home() {
         {loading ? (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {[1, 2, 3, 4, 5, 6].map(i => (
-              <div key={i} className="h-64 rounded-2xl bg-[#111827]/60 animate-pulse border border-white/[0.05]" />
+              <div key={i} className="h-64 rounded-2xl bg-[#ECF4EF] animate-pulse border border-[#DDE5DF]" />
             ))}
           </div>
         ) : filteredZones.length === 0 ? (
-          <div className="text-center py-20 bg-[#111827]/40 rounded-3xl border border-white/[0.06]">
-            <Layers className="w-12 h-12 text-slate-600 mx-auto mb-3" />
-            <h3 className="text-lg font-bold text-white mb-1">No parking zones found</h3>
-            <p className="text-slate-400 text-xs mb-4">Try clearing your search query or selecting another filter tab.</p>
+          <div className="text-center py-20 bg-white rounded-3xl border border-[#DDE5DF] shadow-sm">
+            <Layers className="w-12 h-12 text-[#94A39B] mx-auto mb-3" />
+            <h3 className="text-lg font-bold text-[#17201D] mb-1">No parking zones found</h3>
+            <p className="text-[#64736C] text-xs mb-4">Try clearing your search query or selecting another filter tab.</p>
             <button
               onClick={() => { setSearchQuery(''); setSelectedFilter('all'); }}
-              className="text-xs font-bold text-purple-400 underline hover:text-purple-300"
+              className="text-xs font-bold text-[#16A34A] underline hover:text-[#15803D]"
             >
               Reset Filters
             </button>
@@ -336,25 +337,25 @@ export default function Home() {
           </div>
         )}
 
-        {/* Pro Membership Banner */}
-        <div className="mt-16 bg-gradient-to-r from-purple-950/40 via-[#172033]/60 to-[#111827] border border-purple-500/20 rounded-3xl p-8 sm:p-10 flex flex-col md:flex-row items-center justify-between gap-6 relative overflow-hidden">
+        {/* Pro Mobility Pass Banner */}
+        <div className="mt-14 bg-[#17201D] text-white border border-[#2C3933] rounded-3xl p-8 sm:p-10 flex flex-col md:flex-row items-center justify-between gap-6 relative overflow-hidden shadow-elevation">
           <div className="space-y-2 relative z-10 text-center md:text-left">
-            <span className="inline-flex items-center gap-1.5 text-[11px] font-bold text-purple-300 uppercase tracking-wider">
-              <Sparkles className="w-3.5 h-3.5 text-purple-400" /> SmartPark Pro Membership
+            <span className="inline-flex items-center gap-1.5 text-[11px] font-bold text-[#4ADE80] uppercase tracking-wider">
+              <Sparkles className="w-3.5 h-3.5 text-[#22C55E]" /> PARKORA PRO MOBILITY PASS
             </span>
             <h3 className="text-2xl sm:text-3xl font-extrabold text-white tracking-tight">
-              Unlock Frictionless Access to Exclusive Zones
+              Frictionless Ingress & Guaranteed Bays
             </h3>
-            <p className="text-slate-400 text-xs sm:text-sm max-w-xl">
-              Enjoy zero booking fees, automated license plate recognition at gates, and guaranteed reserved bays.
+            <p className="text-[#A7B5AD] text-xs sm:text-sm max-w-xl">
+              Enjoy zero booking surcharges, ANPR automatic barrier gate opening, and priority reserved parking bays.
             </p>
           </div>
 
           <Link
             href="/subscriptions"
-            className="flex items-center gap-2 bg-[#7c3aed] hover:bg-[#6d28d9] text-white font-bold px-6 py-3.5 rounded-2xl text-xs whitespace-nowrap shadow-xl shadow-purple-600/25 transition-all hover:scale-105 active:scale-95"
+            className="flex items-center gap-2 bg-[#16A34A] hover:bg-[#15803D] text-white font-bold px-6 py-3.5 rounded-xl text-xs whitespace-nowrap shadow-md transition-all active:scale-95"
           >
-            <span>Explore Pro Passes</span>
+            <span>Explore Mobility Passes</span>
             <ChevronRight className="w-4 h-4" />
           </Link>
         </div>
@@ -364,5 +365,6 @@ export default function Home() {
     </div>
   );
 }
+
 
 

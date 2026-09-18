@@ -1,35 +1,82 @@
 @import "tailwindcss";
 
 :root {
-  --background: #080b12;
-  --foreground: #f8fafc;
-  --card: #111827;
-  --card-surface-2: #172033;
-  --card-border: rgba(255, 255, 255, 0.08);
-
-  /* Brand Palette */
-  --midnight-ink: #111827;
-  --royal-violet: #7c3aed;
-  --electric-purple: #a855f7;
+  --background: #FAF9F6;
+  --foreground: #17201D;
+  --card: #FFFFFF;
+  --card-secondary: #ECF4EF;
+  --card-border: #DDE5DF;
+  
+  /* Brand System */
+  --graphite: #17201D;
+  --forest: #12372A;
+  --emerald: #16A34A;
+  --emerald-soft: #DCFCE7;
+  --teal: #0F766E;
+  --teal-soft: #CCFBF1;
+  --ivory: #FAF9F6;
+  --sage: #ECF4EF;
 
   /* Semantic Parking Status */
-  --status-lime: #84cc16;
-  --status-coral: #f43f5e;
-  --status-amber: #f59e0b;
-  --info-sky: #38bdf8;
+  --status-emerald: #16A34A;
+  --status-coral: #E45757;
+  --status-amber: #D97706;
+  --status-teal: #0F766E;
+
+  /* Typography Colors */
+  --text-primary: #17201D;
+  --text-secondary: #64736C;
+  --text-muted: #94A39B;
+}
+
+.dark {
+  --background: #0F1512;
+  --foreground: #F5F7F5;
+  --card: #17201D;
+  --card-secondary: #1D2924;
+  --card-border: #2C3933;
+  
+  --graphite: #0F1512;
+  --forest: #162B22;
+  --emerald: #22C55E;
+  --emerald-soft: rgba(34, 197, 94, 0.15);
+  --teal: #14B8A6;
+  --teal-soft: rgba(20, 184, 166, 0.15);
+  --ivory: #0F1512;
+  --sage: #1D2924;
+
+  --status-emerald: #22C55E;
+  --status-coral: #FB7185;
+  --status-amber: #F59E0B;
+  --status-teal: #14B8A6;
+
+  --text-primary: #F5F7F5;
+  --text-secondary: #A7B5AD;
+  --text-muted: #6B7C73;
 }
 
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
   --color-card: var(--card);
-  --color-midnight: var(--midnight-ink);
-  --color-violet: var(--royal-violet);
-  --color-purple: var(--electric-purple);
-  --color-lime: var(--status-lime);
+  --color-card-secondary: var(--card-secondary);
+  --color-card-border: var(--card-border);
+
+  --color-graphite: var(--graphite);
+  --color-forest: var(--forest);
+  --color-emerald: var(--emerald);
+  --color-emerald-soft: var(--emerald-soft);
+  --color-teal: var(--teal);
+  --color-teal-soft: var(--teal-soft);
+  --color-ivory: var(--ivory);
+  --color-sage: var(--sage);
+
   --color-coral: var(--status-coral);
   --color-amber: var(--status-amber);
-  --color-sky: var(--info-sky);
+
+  --color-text-primary: var(--text-primary);
+  --color-text-secondary: var(--text-secondary);
+  --color-text-muted: var(--text-muted);
 }
 
 body {
@@ -41,51 +88,59 @@ body {
 
 /* Custom Sleek Scrollbar */
 ::-webkit-scrollbar {
-  width: 7px;
-  height: 7px;
+  width: 6px;
+  height: 6px;
 }
 
 ::-webkit-scrollbar-track {
-  background: #080b12;
+  background: var(--background);
 }
 
 ::-webkit-scrollbar-thumb {
-  background: #1e293b;
+  background: #CBD5CF;
   border-radius: 9999px;
-  border: 2px solid #080b12;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: #334155;
+  background: #94A39B;
 }
 
-/* Parking Bay Styling Utilities */
-.parking-bay-grid {
-  background-size: 24px 24px;
+/* 2D Parking Bay Architecture Grid */
+.parking-asphalt-grid {
+  background-color: #17201D;
+  background-size: 28px 28px;
   background-image: 
-    linear-gradient(to right, rgba(255, 255, 255, 0.03) 1px, transparent 1px),
-    linear-gradient(to bottom, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
+    linear-gradient(to right, rgba(255, 255, 255, 0.04) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(255, 255, 255, 0.04) 1px, transparent 1px);
 }
 
-.bay-curb {
-  box-shadow: inset 0 2px 4px 0 rgba(0, 0, 0, 0.6);
+.bay-wheel-stop {
+  box-shadow: inset 0 2px 4px 0 rgba(0, 0, 0, 0.4);
 }
 
-/* Brand & Status Glow Effects */
-.glow-violet {
-  box-shadow: 0 0 24px -4px rgba(124, 58, 237, 0.35);
+/* Premium Subtle Shadow & Glow Utilities */
+.shadow-soft {
+  box-shadow: 0 4px 20px -2px rgba(23, 32, 29, 0.05), 0 2px 6px -1px rgba(23, 32, 29, 0.02);
 }
 
-.glow-lime {
-  box-shadow: 0 0 20px -4px rgba(132, 204, 22, 0.35);
+.shadow-elevation {
+  box-shadow: 0 12px 36px -4px rgba(23, 32, 29, 0.08), 0 4px 12px -2px rgba(23, 32, 29, 0.03);
+}
+
+.glow-emerald {
+  box-shadow: 0 0 24px -4px rgba(22, 163, 74, 0.25);
+}
+
+.glow-teal {
+  box-shadow: 0 0 20px -4px rgba(15, 118, 110, 0.25);
 }
 
 .glow-coral {
-  box-shadow: 0 0 20px -4px rgba(244, 63, 94, 0.35);
+  box-shadow: 0 0 20px -4px rgba(228, 87, 87, 0.25);
 }
 
 .glow-amber {
-  box-shadow: 0 0 20px -4px rgba(245, 158, 11, 0.35);
+  box-shadow: 0 0 20px -4px rgba(217, 119, 6, 0.25);
 }
 
 

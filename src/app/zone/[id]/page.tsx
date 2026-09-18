@@ -68,7 +68,7 @@ export default function ZonePage({ params }: { params: Promise<{ id: string }> }
 
       // 2. Evaluate subscription requirements
       if (zone.zone_type === 'subscription' && !hasActiveSub) {
-        showNotification('error', 'This zone is reserved exclusively for SmartPark Pro subscribers.');
+        showNotification('error', 'This zone is reserved exclusively for PARKORA Pro mobility pass holders.');
         return;
       }
 
@@ -142,14 +142,14 @@ export default function ZonePage({ params }: { params: Promise<{ id: string }> }
         key: process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID,
         amount: orderData.amount,
         currency: orderData.currency || 'INR',
-        name: 'SmartPark Mobility',
+        name: 'PARKORA Smart Mobility',
         description: `Bay #${selectedSlot.slot_number} Reservation (${durationHours}h)`,
         order_id: orderData.id,
         prefill: {
           email: session?.session?.user?.email || '',
         },
         theme: {
-          color: '#7C3AED'
+          color: '#16A34A'
         },
         handler: async function (paymentResponse: any) {
           try {
@@ -208,8 +208,8 @@ export default function ZonePage({ params }: { params: Promise<{ id: string }> }
   if (loading) {
     return (
       <div className="max-w-7xl mx-auto px-4 py-24 text-center">
-        <div className="h-10 w-10 border-4 border-violet-500 border-t-transparent rounded-full animate-spin mx-auto mb-4" />
-        <p className="text-slate-400 text-sm font-mono tracking-wide">Synchronizing 2D Parking Telemetry...</p>
+        <div className="h-10 w-10 border-4 border-[#16A34A] border-t-transparent rounded-full animate-spin mx-auto mb-4" />
+        <p className="text-[#64736C] text-sm font-mono tracking-wide">Synchronizing 2D Parking Telemetry...</p>
       </div>
     );
   }
@@ -217,12 +217,12 @@ export default function ZonePage({ params }: { params: Promise<{ id: string }> }
   if (!zone) {
     return (
       <div className="max-w-7xl mx-auto px-4 py-24 text-center">
-        <div className="w-16 h-16 rounded-2xl bg-rose-500/10 border border-rose-500/20 flex items-center justify-center mx-auto mb-4">
-          <AlertCircle className="w-8 h-8 text-rose-400" />
+        <div className="w-16 h-16 rounded-2xl bg-[#FEE2E2] border border-[#FECACA] flex items-center justify-center mx-auto mb-4">
+          <AlertCircle className="w-8 h-8 text-[#E45757]" />
         </div>
-        <h2 className="text-2xl font-black text-white mb-2">Zone Not Found</h2>
-        <p className="text-slate-400 text-sm mb-6">The requested parking zone telemetry could not be resolved.</p>
-        <Link href="/" className="px-6 py-3 bg-violet-600 hover:bg-violet-500 text-white font-bold rounded-xl text-xs uppercase tracking-wider transition-all shadow-lg shadow-violet-600/30">
+        <h2 className="text-2xl font-black text-[#17201D] mb-2">Zone Not Found</h2>
+        <p className="text-[#64736C] text-sm mb-6">The requested parking zone telemetry could not be resolved.</p>
+        <Link href="/" className="px-6 py-3 bg-[#16A34A] hover:bg-[#15803D] text-white font-bold rounded-xl text-xs uppercase tracking-wider transition-all shadow-md">
           Return to All Zones
         </Link>
       </div>
@@ -234,16 +234,16 @@ export default function ZonePage({ params }: { params: Promise<{ id: string }> }
   const occupancyPct = slots.length > 0 ? Math.round((occupiedCount / slots.length) * 100) : 0;
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
+    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 min-h-screen bg-[#FAF9F6]">
       
       {/* Toast Notification */}
       {notification && (
         <div className={`fixed top-20 right-6 z-50 p-4 rounded-2xl border shadow-2xl flex items-center gap-3 animate-in slide-in-from-top-4 duration-300 text-xs font-bold ${
           notification.type === 'success'
-            ? 'bg-lime-950/90 border-lime-500/40 text-lime-300 shadow-lime-950/50'
-            : 'bg-rose-950/90 border-rose-500/40 text-rose-300 shadow-rose-950/50'
+            ? 'bg-[#12372A] border-[#16A34A] text-[#4ADE80] shadow-xl'
+            : 'bg-[#4C0519] border-[#FB7185] text-[#FECDD3] shadow-xl'
         }`}>
-          {notification.type === 'success' ? <CheckCircle2 className="w-5 h-5 text-lime-400 flex-shrink-0" /> : <AlertCircle className="w-5 h-5 text-rose-400 flex-shrink-0" />}
+          {notification.type === 'success' ? <CheckCircle2 className="w-5 h-5 text-[#4ADE80] flex-shrink-0" /> : <AlertCircle className="w-5 h-5 text-[#FB7185] flex-shrink-0" />}
           <span>{notification.message}</span>
         </div>
       )}
@@ -253,70 +253,70 @@ export default function ZonePage({ params }: { params: Promise<{ id: string }> }
         <div className="flex items-center gap-3">
           <Link 
             href="/" 
-            className="p-2.5 bg-surface-1 hover:bg-surface-2 text-slate-400 hover:text-white rounded-xl transition-all border border-white/[0.08]"
+            className="p-2.5 bg-white hover:bg-[#ECF4EF] text-[#64736C] hover:text-[#17201D] rounded-xl transition-all border border-[#DDE5DF] shadow-sm"
           >
             <ArrowLeft className="w-4 h-4" />
           </Link>
-          <div className="flex items-center gap-2 text-xs font-semibold text-slate-400">
-            <Link href="/" className="hover:text-violet-400 transition-colors">Zones</Link>
-            <span className="text-slate-600">/</span>
-            <span className="text-white font-medium">{zone.name}</span>
+          <div className="flex items-center gap-2 text-xs font-semibold text-[#64736C]">
+            <Link href="/" className="hover:text-[#16A34A] transition-colors">All Zones</Link>
+            <span>/</span>
+            <span className="text-[#17201D] font-bold">{zone.name}</span>
           </div>
         </div>
 
         {/* Live Pulse Indicator */}
-        <div className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-lime-500/10 border border-lime-500/25">
-          <span className="w-2 h-2 rounded-full bg-lime-400 animate-pulse"></span>
-          <span className="text-[11px] font-bold text-lime-400 tracking-wider font-mono uppercase">Live Telemetry</span>
+        <div className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-[#DCFCE7] border border-[#BBF7D0]">
+          <span className="w-2 h-2 rounded-full bg-[#16A34A] animate-pulse"></span>
+          <span className="text-[11px] font-bold text-[#16A34A] tracking-wider font-mono uppercase">Telemetry Live</span>
         </div>
       </div>
 
       {/* Zone Overview Banner */}
-      <div className="bg-surface-1 border border-white/[0.08] rounded-3xl p-6 sm:p-8 mb-8 flex flex-col md:flex-row items-start md:items-center justify-between gap-6 relative overflow-hidden shadow-2xl">
-        <div className="absolute -top-20 -right-20 w-80 h-80 bg-violet-600/10 rounded-full blur-3xl pointer-events-none" />
+      <div className="bg-[#17201D] text-white rounded-3xl p-6 sm:p-8 mb-8 flex flex-col md:flex-row items-start md:items-center justify-between gap-6 relative overflow-hidden shadow-elevation border border-[#2C3933]">
+        <div className="absolute -top-20 -right-20 w-80 h-80 bg-[#16A34A]/10 rounded-full blur-3xl pointer-events-none" />
 
         <div className="space-y-3 relative z-10">
           <div className="flex items-center gap-2.5">
-            <span className="px-3 py-1 rounded-full text-xs font-bold bg-violet-500/15 text-violet-300 border border-violet-500/30 uppercase tracking-wider">
+            <span className="px-3 py-1 rounded-full text-xs font-bold bg-[#12372A] text-[#4ADE80] border border-[#16A34A]/40 uppercase tracking-wider">
               {zone.zone_type} Zone
             </span>
-            <span className="text-xs text-slate-400 font-mono">• {slots.length} Total Bays</span>
-            <span className="text-xs text-slate-600">•</span>
-            <span className="text-xs text-lime-400 font-mono font-bold">{availableCount} Available</span>
+            <span className="text-xs text-[#A7B5AD] font-mono">• {slots.length} Total Bays</span>
+            <span className="text-xs text-[#6B7C73]">•</span>
+            <span className="text-xs text-[#4ADE80] font-mono font-bold">{availableCount} Available</span>
           </div>
 
           <h1 className="text-3xl sm:text-4xl font-black text-white tracking-tight">
             {zone.name}
           </h1>
 
-          <div className="flex flex-wrap items-center gap-4 text-xs text-slate-400 pt-1">
-            <span className="inline-flex items-center gap-1.5 text-slate-300">
-              <Zap className="w-3.5 h-3.5 text-lime-400" /> Fast EV Charging Available
+          <div className="flex flex-wrap items-center gap-4 text-xs text-[#A7B5AD] pt-1">
+            <span className="inline-flex items-center gap-1.5 text-white">
+              <Zap className="w-3.5 h-3.5 text-[#22C55E]" /> Fast EV Charging
             </span>
-            <span className="text-slate-700">•</span>
-            <span className="inline-flex items-center gap-1.5 text-slate-300">
-              <Video className="w-3.5 h-3.5 text-violet-400" /> 24/7 Security CCTV & ANPR
+            <span className="text-[#6B7C73]">•</span>
+            <span className="inline-flex items-center gap-1.5 text-white">
+              <Video className="w-3.5 h-3.5 text-[#14B8A6]" /> 24/7 ANPR Guard
             </span>
-            <span className="text-slate-700">•</span>
-            <span className="inline-flex items-center gap-1.5 text-slate-300">
-              <ShieldCheck className="w-3.5 h-3.5 text-lime-400" /> Automated Barrier Access
+            <span className="text-[#6B7C73]">•</span>
+            <span className="inline-flex items-center gap-1.5 text-white">
+              <ShieldCheck className="w-3.5 h-3.5 text-[#22C55E]" /> Automated Gate
             </span>
           </div>
         </div>
 
         {/* Pricing Badge */}
-        <div className="p-5 bg-surface-2/80 rounded-2xl border border-white/[0.08] min-w-[220px] text-right relative z-10 backdrop-blur-sm">
-          <span className="text-[11px] font-bold text-slate-400 uppercase tracking-wider block mb-1">Standard Parking Rate</span>
+        <div className="p-5 bg-[#12372A] rounded-2xl border border-[#16A34A]/30 min-w-[220px] text-right relative z-10 shadow-sm">
+          <span className="text-[11px] font-bold text-[#A7B5AD] uppercase tracking-wider block mb-1">Standard Hourly Rate</span>
           <div className="text-2xl font-black text-white font-mono">
-            {zone.price_per_hour > 0 ? `₹${zone.price_per_hour}` : 'Included'}
-            {zone.price_per_hour > 0 && <span className="text-xs font-normal text-slate-400">/hr</span>}
+            {zone.price_per_hour > 0 ? `₹${zone.price_per_hour * 50 || zone.price_per_hour}` : 'Included'}
+            {zone.price_per_hour > 0 && <span className="text-xs font-normal text-[#A7B5AD]">/hr</span>}
           </div>
           {zone.subscription_price > 0 && (
-            <div className="text-xs text-violet-400 font-bold font-mono mt-1">
-              or ₹{zone.subscription_price}/mo with SmartPark Pro
+            <div className="text-xs text-[#4ADE80] font-bold font-mono mt-1">
+              or ₹{zone.subscription_price * 50 || zone.subscription_price}/mo with Pro Pass
             </div>
           )}
-          <div className="mt-3 pt-3 border-t border-white/[0.06] flex items-center justify-between text-[11px] text-slate-400">
+          <div className="mt-3 pt-3 border-t border-white/[0.08] flex items-center justify-between text-[11px] text-[#A7B5AD]">
             <span>Occupancy Load</span>
             <span className="font-bold text-white font-mono">{occupancyPct}%</span>
           </div>
@@ -327,25 +327,25 @@ export default function ZonePage({ params }: { params: Promise<{ id: string }> }
       <div className="space-y-6">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div>
-            <h2 className="text-xl font-bold text-white tracking-tight flex items-center gap-2">
+            <h2 className="text-xl font-bold text-[#17201D] tracking-tight flex items-center gap-2">
               <span>Interactive 2D Parking Layout</span>
             </h2>
-            <p className="text-xs text-slate-400 mt-0.5">Click any available bay to select and proceed with reservation.</p>
+            <p className="text-xs text-[#64736C] mt-0.5">Click any available bay to select and proceed with reservation.</p>
           </div>
 
           {/* Visual Legend */}
-          <div className="flex flex-wrap items-center gap-3 text-xs font-semibold bg-surface-1 px-4 py-2.5 rounded-2xl border border-white/[0.08]">
-            <span className="flex items-center gap-1.5 text-slate-300">
-              <span className="h-2.5 w-2.5 rounded-full bg-lime-400 ring-2 ring-lime-400/30"></span> Available
+          <div className="flex flex-wrap items-center gap-3 text-xs font-semibold bg-white px-4 py-2.5 rounded-2xl border border-[#DDE5DF] shadow-sm">
+            <span className="flex items-center gap-1.5 text-[#17201D]">
+              <span className="h-2.5 w-2.5 rounded-full bg-[#16A34A]"></span> Available
             </span>
-            <span className="flex items-center gap-1.5 text-slate-300">
-              <span className="h-2.5 w-2.5 rounded-full bg-rose-500"></span> Occupied
+            <span className="flex items-center gap-1.5 text-[#17201D]">
+              <span className="h-2.5 w-2.5 rounded-full bg-[#E45757]"></span> Occupied
             </span>
-            <span className="flex items-center gap-1.5 text-slate-300">
-              <span className="h-2.5 w-2.5 rounded-full bg-amber-400"></span> Reserved
+            <span className="flex items-center gap-1.5 text-[#17201D]">
+              <span className="h-2.5 w-2.5 rounded-full bg-[#D97706]"></span> Reserved
             </span>
-            <span className="flex items-center gap-1.5 text-slate-300">
-              <span className="h-2.5 w-2.5 rounded-full bg-violet-500 ring-2 ring-violet-500/50"></span> Selected
+            <span className="flex items-center gap-1.5 text-[#17201D]">
+              <span className="h-2.5 w-2.5 rounded-full bg-[#16A34A] ring-2 ring-[#16A34A]/40"></span> Selected
             </span>
           </div>
         </div>
@@ -372,5 +372,6 @@ export default function ZonePage({ params }: { params: Promise<{ id: string }> }
     </div>
   );
 }
+
 
 

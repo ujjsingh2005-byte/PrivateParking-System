@@ -164,7 +164,7 @@ export default function PaymentButton({
         },
 
         theme: {
-          color: "#2563eb",
+          color: "#16A34A",
         },
 
         /*
@@ -382,7 +382,7 @@ export default function PaymentButton({
         type="button"
         onClick={handlePayment}
         disabled={loading || !scriptLoaded}
-        className="bg-blue-600 text-white px-4 py-2 rounded font-bold hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed"
+        className="bg-[#16A34A] text-white px-5 py-2.5 rounded-xl font-bold hover:bg-[#15803D] disabled:opacity-50 disabled:cursor-not-allowed transition-all shadow-md active:scale-95 text-xs uppercase tracking-wider font-mono"
       >
         {loading
           ? "Processing..."

@@ -120,27 +120,27 @@ export default function AdminManagePage() {
   if (loading) {
     return (
       <div className="max-w-7xl mx-auto px-4 py-24 text-center">
-        <div className="h-10 w-10 border-4 border-violet-500 border-t-transparent rounded-full animate-spin mx-auto mb-4" />
-        <p className="text-slate-400 text-xs font-mono tracking-wide">Loading Management Console...</p>
+        <div className="h-10 w-10 border-4 border-[#16A34A] border-t-transparent rounded-full animate-spin mx-auto mb-4" />
+        <p className="text-[#64736C] text-xs font-mono tracking-wide">Loading Management Console...</p>
       </div>
     );
   }
   if (!isAdmin) {
     if (typeof window !== 'undefined') window.location.href = '/';
-    return <div className="p-12 text-center text-rose-400 font-bold">Access Denied - Redirecting...</div>;
+    return <div className="p-12 text-center text-[#E45757] font-bold text-xs">Access Denied - Redirecting...</div>;
   }
 
   return (
-    <div className="max-w-7xl mx-auto px-4 py-10">
+    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
       <div className="mb-10 flex flex-col md:flex-row md:items-center justify-between gap-6">
         <div>
-          <div className="text-[11px] font-bold text-violet-400 font-mono uppercase tracking-wider mb-1">Infrastructure Control</div>
-          <h1 className="text-3xl sm:text-4xl font-black text-white">Management Console</h1>
-          <p className="text-slate-400 text-xs sm:text-sm mt-1">Control zones, manage slots, and configure your parking infrastructure.</p>
+          <div className="text-[11px] font-bold text-[#16A34A] font-mono uppercase tracking-wider mb-1">Infrastructure Control</div>
+          <h1 className="text-3xl sm:text-4xl font-black text-[#17201D] tracking-tight">Zone & Slot Management</h1>
+          <p className="text-[#64736C] text-xs sm:text-sm mt-1">Control zones, manage slot allocations, and configure pricing models.</p>
         </div>
         <button 
           onClick={() => setShowZoneModal(true)}
-          className="flex items-center gap-2 bg-violet-600 hover:bg-violet-500 text-white px-6 py-3 rounded-2xl font-bold transition-all shadow-xl shadow-violet-600/30 text-xs uppercase tracking-wider"
+          className="flex items-center gap-2 bg-[#16A34A] hover:bg-[#15803D] text-white px-6 py-3.5 rounded-2xl font-bold transition-all shadow-md active:scale-95 text-xs uppercase tracking-wider"
         >
           <Plus className="w-4 h-4" /> Add New Zone
         </button>
@@ -149,35 +149,35 @@ export default function AdminManagePage() {
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
         {/* Zone List */}
         <div className="lg:col-span-4 space-y-4">
-          <h2 className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-4 flex items-center gap-2 font-mono">
-            <Layers className="w-4 h-4 text-violet-400" /> Available Zones ({zones.length})
+          <h2 className="text-xs font-bold text-[#64736C] uppercase tracking-wider mb-4 flex items-center gap-2 font-mono">
+            <Layers className="w-4 h-4 text-[#16A34A]" /> Configured Hubs ({zones.length})
           </h2>
           <div className="space-y-3">
             {zones.map(zone => (
               <div 
                 key={zone.id}
                 onClick={() => { setSelectedZone(zone); fetchSlots(zone.id); }}
-                className={`group p-5 rounded-3xl border-2 transition-all cursor-pointer relative overflow-hidden shadow-xl ${
+                className={`group p-5 rounded-3xl border-2 transition-all cursor-pointer relative overflow-hidden shadow-card ${
                   selectedZone?.id === zone.id 
-                    ? 'bg-surface-2 border-violet-500' 
-                    : 'bg-surface-1 border-white/[0.08] hover:border-violet-500/40'
+                    ? 'bg-[#DCFCE7]/40 border-[#16A34A] shadow-md' 
+                    : 'bg-white border-[#DDE5DF] hover:border-[#16A34A]/50'
                 }`}
               >
                 <div className="flex justify-between items-start">
                   <div>
-                    <h3 className="font-bold text-white text-base mb-1">{zone.name}</h3>
+                    <h3 className="font-bold text-[#17201D] text-base mb-1">{zone.name}</h3>
                     <div className="flex items-center gap-2">
-                      <span className="text-[10px] font-black uppercase text-violet-300 bg-violet-500/15 px-2.5 py-0.5 rounded-full border border-violet-500/30 font-mono">
+                      <span className="text-[10px] font-black uppercase text-[#16A34A] bg-[#DCFCE7] px-2.5 py-0.5 rounded-full border border-[#BBF7D0] font-mono">
                         {zone.zone_type}
                       </span>
-                      <span className="text-xs text-slate-400 font-mono">
-                        {zone.price_per_hour > 0 ? `₹${zone.price_per_hour}/hr` : 'Free'}
+                      <span className="text-xs text-[#64736C] font-mono font-semibold">
+                        {zone.price_per_hour > 0 ? `₹${zone.price_per_hour}/hr` : 'Free Tier'}
                       </span>
                     </div>
                   </div>
                   <button 
                     onClick={(e) => { e.stopPropagation(); handleDeleteZone(zone.id); }}
-                    className="p-2 text-slate-500 hover:text-rose-400 transition-colors opacity-0 group-hover:opacity-100"
+                    className="p-2 text-[#94A39B] hover:text-[#E45757] hover:bg-[#FEE2E2] rounded-xl transition-colors opacity-0 group-hover:opacity-100"
                     title="Delete Zone"
                   >
                     <Trash2 className="w-4 h-4" />
@@ -190,21 +190,21 @@ export default function AdminManagePage() {
 
         {/* Slot Manager */}
         <div className="lg:col-span-8 flex flex-col gap-6">
-          <h2 className="text-xs font-bold text-slate-400 uppercase tracking-wider flex items-center gap-2 font-mono">
-            <LayoutGrid className="w-4 h-4 text-violet-400" /> Slot Manager
+          <h2 className="text-xs font-bold text-[#64736C] uppercase tracking-wider flex items-center gap-2 font-mono">
+            <LayoutGrid className="w-4 h-4 text-[#16A34A]" /> Slot Bay Grid
           </h2>
           {selectedZone ? (
-            <div className="bg-surface-1 border border-white/[0.08] rounded-3xl p-8 min-h-[500px] flex flex-col shadow-2xl">
-              <div className="flex items-center justify-between mb-8 pb-6 border-b border-white/[0.08]">
+            <div className="bg-white border border-[#DDE5DF] rounded-3xl p-8 min-h-[500px] flex flex-col shadow-card">
+              <div className="flex items-center justify-between mb-8 pb-6 border-b border-[#DDE5DF]">
                 <div>
-                  <h3 className="text-2xl font-black text-white">{selectedZone.name}</h3>
-                  <p className="text-slate-400 text-xs font-mono mt-0.5">Managing {slots.length} parking slots</p>
+                  <h3 className="text-2xl font-black text-[#17201D] tracking-tight">{selectedZone.name}</h3>
+                  <p className="text-[#64736C] text-xs font-mono mt-0.5">Managing {slots.length} parking bays</p>
                 </div>
                 <button 
                   onClick={handleAddSlot}
-                  className="bg-lime-500/15 hover:bg-lime-500/25 text-lime-300 border border-lime-500/30 px-5 py-2.5 rounded-xl font-bold text-xs transition-all flex items-center gap-2 font-mono uppercase tracking-wider"
+                  className="bg-[#DCFCE7] hover:bg-[#BBF7D0] text-[#15803D] border border-[#86EFAC] px-5 py-2.5 rounded-xl font-bold text-xs transition-all flex items-center gap-2 font-mono uppercase tracking-wider shadow-sm"
                 >
-                  <Plus className="w-4 h-4 text-lime-400" /> Add Slot
+                  <Plus className="w-4 h-4 text-[#16A34A]" /> Add Slot Bay
                 </button>
               </div>
 
@@ -213,35 +213,35 @@ export default function AdminManagePage() {
                   <div 
                     key={slot.id} 
                     onClick={() => { setSelectedSlot(slot); setSlotForm({ slot_number: slot.slot_number, price_override: slot.price_per_hour_override || 0 }); setShowSlotModal(true); }}
-                    className="bg-surface-2/60 border border-white/[0.08] p-4 rounded-2xl flex flex-col items-center justify-center relative group hover:border-violet-500 transition-all cursor-pointer"
+                    className="bg-[#FAF9F6] border border-[#DDE5DF] p-4 rounded-2xl flex flex-col items-center justify-center relative group hover:border-[#16A34A] hover:bg-white hover:shadow-md transition-all cursor-pointer"
                   >
-                    <span className="text-2xl font-black text-slate-400 group-hover:text-white transition-colors mb-2 font-mono">#{slot.slot_number}</span>
+                    <span className="text-2xl font-black text-[#17201D] group-hover:text-[#16A34A] transition-colors mb-2 font-mono">#{slot.slot_number}</span>
                     <div className="flex flex-col items-center gap-1">
-                      <span className={`text-[10px] font-bold uppercase tracking-wider font-mono ${slot.price_per_hour_override ? 'text-amber-400' : 'text-lime-400'}`}>
+                      <span className={`text-[10px] font-bold uppercase tracking-wider font-mono ${slot.price_per_hour_override ? 'text-[#D97706]' : 'text-[#16A34A]'}`}>
                         {slot.price_per_hour_override ? `₹${slot.price_per_hour_override}/hr` : 'Standard'}
                       </span>
                     </div>
                     <button 
                       onClick={(e) => { e.stopPropagation(); handleDeleteSlot(slot.id); }}
-                      className="absolute top-2 right-2 p-1 text-slate-600 hover:text-rose-400 opacity-0 group-hover:opacity-100 transition-all"
+                      className="absolute top-2 right-2 p-1.5 text-[#94A39B] hover:text-[#E45757] hover:bg-[#FEE2E2] rounded-lg opacity-0 group-hover:opacity-100 transition-all"
                     >
-                      <Trash2 className="w-4 h-4" />
+                      <Trash2 className="w-3.5 h-3.5" />
                     </button>
                   </div>
                 ))}
                 {slots.length === 0 && (
-                  <div className="col-span-full h-48 flex flex-col items-center justify-center text-slate-500 border-2 border-dashed border-white/[0.08] rounded-3xl">
-                    <AlertCircle className="w-8 h-8 mb-2 opacity-30 text-slate-400" />
-                    <p className="font-medium text-xs">No slots in this zone yet.</p>
+                  <div className="col-span-full h-48 flex flex-col items-center justify-center text-[#94A39B] border-2 border-dashed border-[#DDE5DF] rounded-3xl">
+                    <AlertCircle className="w-8 h-8 mb-2 opacity-40 text-[#64736C]" />
+                    <p className="font-semibold text-xs text-[#64736C]">No slot bays configured in this zone yet.</p>
                   </div>
                 )}
               </div>
             </div>
           ) : (
-            <div className="flex-1 bg-surface-1 border border-white/[0.08] border-dashed rounded-3xl flex flex-col items-center justify-center p-12 text-slate-500">
-              <Settings className="w-12 h-12 mb-4 opacity-20 text-slate-400" />
-              <h3 className="text-lg font-bold text-slate-400 mb-1">No Zone Selected</h3>
-              <p className="text-slate-500 text-center max-w-xs text-xs">Select a zone from the sidebar to manage its parking slots and overrides.</p>
+            <div className="flex-1 bg-white border border-[#DDE5DF] border-dashed rounded-3xl flex flex-col items-center justify-center p-12 text-[#94A39B] shadow-card">
+              <Settings className="w-12 h-12 mb-4 opacity-30 text-[#64736C]" />
+              <h3 className="text-base font-bold text-[#17201D] mb-1">No Zone Selected</h3>
+              <p className="text-[#64736C] text-center max-w-xs text-xs">Select a parking zone from the left to manage its slots and custom hourly overrides.</p>
             </div>
           )}
         </div>
@@ -249,40 +249,40 @@ export default function AdminManagePage() {
 
       {/* Slot Modal */}
       {showSlotModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-md p-4 animate-in fade-in duration-200">
-          <div className="bg-surface-1 border border-white/[0.08] w-full max-w-sm rounded-3xl overflow-hidden shadow-2xl">
-             <div className="p-6 border-b border-white/[0.08] flex justify-between items-center">
-                <h3 className="text-lg font-black text-white flex items-center gap-2">
-                  <LayoutGrid className="w-5 h-5 text-violet-400" /> 
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4 animate-in fade-in duration-200">
+          <div className="bg-white border border-[#DDE5DF] w-full max-w-sm rounded-3xl overflow-hidden shadow-elevation">
+             <div className="p-6 border-b border-[#DDE5DF] flex justify-between items-center bg-[#FAF9F6]">
+                <h3 className="text-lg font-black text-[#17201D] flex items-center gap-2">
+                  <LayoutGrid className="w-5 h-5 text-[#16A34A]" /> 
                   {selectedSlot ? 'Edit Bay Slot' : 'Create Bay Slot'}
                 </h3>
-                <button onClick={() => { setShowSlotModal(false); setSelectedSlot(null); }} className="text-slate-400 hover:text-white transition-colors"><X className="w-5 h-5" /></button>
+                <button onClick={() => { setShowSlotModal(false); setSelectedSlot(null); }} className="text-[#64736C] hover:text-[#17201D] transition-colors"><X className="w-5 h-5" /></button>
              </div>
              <form onSubmit={handleSaveSlot} className="p-6 space-y-5">
                 <div className="space-y-1.5">
-                   <label className="text-xs font-bold text-slate-400 uppercase tracking-wider font-mono">Slot Number</label>
+                   <label className="text-xs font-bold text-[#64736C] uppercase tracking-wider font-mono">Slot Number</label>
                    <input 
                     type="number" 
                     required 
                     value={slotForm.slot_number} 
                     onChange={e => setSlotForm({...slotForm, slot_number: Number(e.target.value)})}
-                    className="w-full bg-surface-2 border border-white/[0.08] rounded-xl p-3.5 text-white text-xs font-mono focus:border-violet-500 outline-none"
+                    className="w-full bg-[#FAF9F6] border border-[#DDE5DF] rounded-xl p-3.5 text-[#17201D] text-xs font-mono focus:border-[#16A34A] outline-none"
                    />
                 </div>
                 <div className="space-y-1.5">
-                   <label className="text-xs font-bold text-slate-400 uppercase tracking-wider font-mono">Price Override (₹/hr)</label>
+                   <label className="text-xs font-bold text-[#64736C] uppercase tracking-wider font-mono">Price Override (₹/hr)</label>
                    <input 
                     type="number" 
                     step="1"
                     value={slotForm.price_override} 
                     onChange={e => setSlotForm({...slotForm, price_override: Number(e.target.value)})}
                     placeholder="0 (uses zone rate)"
-                    className="w-full bg-surface-2 border border-white/[0.08] rounded-xl p-3.5 text-white text-xs font-mono focus:border-violet-500 outline-none"
+                    className="w-full bg-[#FAF9F6] border border-[#DDE5DF] rounded-xl p-3.5 text-[#17201D] text-xs font-mono focus:border-[#16A34A] outline-none"
                    />
-                   <p className="text-[10px] text-slate-500">Leave at 0 to use the standard zone price (₹{selectedZone.price_per_hour}/hr).</p>
+                   <p className="text-[10px] text-[#94A39B]">Leave at 0 to use standard zone rate (₹{selectedZone?.price_per_hour}/hr).</p>
                 </div>
                 
-                <button type="submit" className="w-full bg-violet-600 hover:bg-violet-500 text-white font-bold py-3.5 rounded-xl transition-all flex justify-center items-center gap-2 text-xs uppercase tracking-wider shadow-lg shadow-violet-600/30">
+                <button type="submit" className="w-full bg-[#16A34A] hover:bg-[#15803D] text-white font-bold py-3.5 rounded-xl transition-all flex justify-center items-center gap-2 text-xs uppercase tracking-wider shadow-md">
                    <Save className="w-4 h-4" /> {selectedSlot ? 'Update Bay' : 'Create Bay'}
                 </button>
              </form>
@@ -292,32 +292,32 @@ export default function AdminManagePage() {
 
       {/* Zone Modal */}
       {showZoneModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-md p-4 animate-in fade-in duration-200">
-          <div className="bg-surface-1 border border-white/[0.08] w-full max-w-md rounded-3xl overflow-hidden shadow-2xl">
-             <div className="p-6 border-b border-white/[0.08] flex justify-between items-center">
-                <h3 className="text-lg font-black text-white flex items-center gap-2">
-                  <Edit3 className="w-5 h-5 text-violet-400" /> Create New Parking Zone
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4 animate-in fade-in duration-200">
+          <div className="bg-white border border-[#DDE5DF] w-full max-w-md rounded-3xl overflow-hidden shadow-elevation">
+             <div className="p-6 border-b border-[#DDE5DF] flex justify-between items-center bg-[#FAF9F6]">
+                <h3 className="text-lg font-black text-[#17201D] flex items-center gap-2">
+                  <Edit3 className="w-5 h-5 text-[#16A34A]" /> Create New Parking Zone
                 </h3>
-                <button onClick={() => setShowZoneModal(false)} className="text-slate-400 hover:text-white transition-colors"><X className="w-5 h-5" /></button>
+                <button onClick={() => setShowZoneModal(false)} className="text-[#64736C] hover:text-[#17201D] transition-colors"><X className="w-5 h-5" /></button>
              </div>
              <form onSubmit={handleCreateZone} className="p-6 space-y-4">
                 <div className="space-y-1.5">
-                   <label className="text-xs font-bold text-slate-400 uppercase tracking-wider font-mono">Zone Name</label>
+                   <label className="text-xs font-bold text-[#64736C] uppercase tracking-wider font-mono">Zone Name</label>
                    <input 
                     type="text" 
                     required 
                     value={zoneForm.name} 
                     onChange={e => setZoneForm({...zoneForm, name: e.target.value})}
                     placeholder="e.g. VIP Underground Wing" 
-                    className="w-full bg-surface-2 border border-white/[0.08] rounded-xl p-3.5 text-white text-xs focus:border-violet-500 outline-none"
+                    className="w-full bg-[#FAF9F6] border border-[#DDE5DF] rounded-xl p-3.5 text-[#17201D] text-xs focus:border-[#16A34A] outline-none"
                    />
                 </div>
                 <div className="space-y-1.5">
-                   <label className="text-xs font-bold text-slate-400 uppercase tracking-wider font-mono">Type</label>
+                   <label className="text-xs font-bold text-[#64736C] uppercase tracking-wider font-mono">Type</label>
                    <select 
                     value={zoneForm.zone_type} 
                     onChange={e => setZoneForm({...zoneForm, zone_type: e.target.value})}
-                    className="w-full bg-surface-2 border border-white/[0.08] rounded-xl p-3.5 text-white text-xs focus:border-violet-500 outline-none"
+                    className="w-full bg-[#FAF9F6] border border-[#DDE5DF] rounded-xl p-3.5 text-[#17201D] text-xs focus:border-[#16A34A] outline-none"
                    >
                      <option value="fixed">Fixed Rate</option>
                      <option value="hourly">Hourly Auto</option>
@@ -327,26 +327,26 @@ export default function AdminManagePage() {
                 </div>
                 <div className="grid grid-cols-2 gap-4">
                   <div className="space-y-1.5">
-                      <label className="text-xs font-bold text-slate-400 uppercase tracking-wider font-mono">Price (₹/hr)</label>
+                      <label className="text-xs font-bold text-[#64736C] uppercase tracking-wider font-mono">Price (₹/hr)</label>
                       <input 
                         type="number" 
                         value={zoneForm.price_per_hour} 
                         onChange={e => setZoneForm({...zoneForm, price_per_hour: Number(e.target.value)})}
-                        className="w-full bg-surface-2 border border-white/[0.08] rounded-xl p-3.5 text-white text-xs font-mono focus:border-violet-500 outline-none"
+                        className="w-full bg-[#FAF9F6] border border-[#DDE5DF] rounded-xl p-3.5 text-[#17201D] text-xs font-mono focus:border-[#16A34A] outline-none"
                       />
                   </div>
                   <div className="space-y-1.5">
-                      <label className="text-xs font-bold text-slate-400 uppercase tracking-wider font-mono">Sub (₹/mo)</label>
+                      <label className="text-xs font-bold text-[#64736C] uppercase tracking-wider font-mono">Sub (₹/mo)</label>
                       <input 
                         type="number" 
                         value={zoneForm.subscription_price} 
                         onChange={e => setZoneForm({...zoneForm, subscription_price: Number(e.target.value)})}
-                        className="w-full bg-surface-2 border border-white/[0.08] rounded-xl p-3.5 text-white text-xs font-mono focus:border-violet-500 outline-none"
+                        className="w-full bg-[#FAF9F6] border border-[#DDE5DF] rounded-xl p-3.5 text-[#17201D] text-xs font-mono focus:border-[#16A34A] outline-none"
                       />
                   </div>
                 </div>
                 
-                <button type="submit" className="w-full bg-violet-600 hover:bg-violet-500 text-white font-bold py-4 rounded-xl transition-all flex justify-center items-center gap-2 mt-4 text-xs uppercase tracking-wider shadow-lg shadow-violet-600/30">
+                <button type="submit" className="w-full bg-[#16A34A] hover:bg-[#15803D] text-white font-bold py-4 rounded-xl transition-all flex justify-center items-center gap-2 mt-4 text-xs uppercase tracking-wider shadow-md">
                    <Save className="w-4 h-4" /> Save Zone Telemetry
                 </button>
              </form>
